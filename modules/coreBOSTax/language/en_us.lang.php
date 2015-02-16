@@ -9,9 +9,9 @@
  ************************************************************************************/
 
 $mod_strings = Array(
-	'coreBOSTax' => 'coreBOS Tax',
-	'SINGLE_coreBOSTax' => 'coreBOS Tax',
-	'coreBOSTax ID' => 'coreBOS Tax ID',
+	'coreBOSTax' => 'Taxes',
+	'SINGLE_coreBOSTax' => 'Tax',
+	'coreBOSTax ID' => 'Tax ID',
 	'taxname' => 'Tax Name',
 	'corebostaxactive' => 'Active',
 	'acvtaxtype' => 'Related Entity Tax Type',
@@ -19,7 +19,7 @@ $mod_strings = Array(
 	'taxp' => 'Tax Percentage',
 
 	'LBL_CUSTOM_INFORMATION' => 'Custom Information',
-	'LBL_COREBOSTAX_INFORMATION' => 'coreBOS Tax Information',
+	'LBL_COREBOSTAX_INFORMATION' => 'Tax Information',
 	'LBL_DESCRIPTION_INFORMATION' => 'Description',
 );
 

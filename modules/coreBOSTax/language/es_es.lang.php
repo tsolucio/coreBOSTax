@@ -9,14 +9,18 @@
  ************************************************************************************/
 
 $mod_strings = Array(
-	'ModuleName' => 'Module Name',
-	'SINGLE_ModuleName' => 'Module Name',
-	'ModuleName ID' => 'Module Name ID',
+	'coreBOSTax' => 'Impuestos',
+	'SINGLE_coreBOSTax' => 'Impuesto',
+	'coreBOSTax ID' => 'ID Impuesto',
+	'taxname' => 'Nombre Impuesto',
+	'corebostaxactive' => 'Activo',
+	'acvtaxtype' => 'Tipo Impuesto Entidad Relacionada',
+	'pdotaxtype' => 'Tipo Impuesto Producto',
+	'taxp' => 'Porcentaje Impuesto',
 
 	'LBL_CUSTOM_INFORMATION' => 'Información Personalizada',
-	'LBL_MODULEBLOCK_INFORMATION' => 'Información ModuleName',
+	'LBL_COREBOSTAX_INFORMATION' => 'Información Impuesto',
 	'LBL_DESCRIPTION_INFORMATION' => 'Descripción',
-
 );
 
 ?>
