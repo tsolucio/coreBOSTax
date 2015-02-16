@@ -91,6 +91,7 @@
 <sequence>2</sequence>
 <maximumlength>3</maximumlength>
 <typeofdata>V~O</typeofdata>
+<defaultvalue>1</defaultvalue>
 <quickcreate>0</quickcreate>
 <quickcreatesequence>0</quickcreatesequence>
 <displaytype>1</displaytype>
