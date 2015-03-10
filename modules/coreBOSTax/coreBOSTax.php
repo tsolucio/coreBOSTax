@@ -479,5 +479,106 @@ class coreBOSTax extends CRMEntity {
 	 * You can override the behavior by re-defining it here.
 	 */
 	//function get_dependents_list($id, $cur_tab_id, $rel_tab_id, $actions=false) { }
+
+	/**	Function used to get all the tax details which are associated to the given product
+	 *	@param int $productid - product/service id for which we want to get all the associated taxes
+	 *	@param string $available - available, available_associated or all. default is all
+	 *    if available then the taxes which are available now will be returned,
+	 *    if all then all taxes will be returned
+	 *    if available_associated then all the associated taxes even if they are not available and all the available taxes will be retruned
+	 *	@return array $tax_details - tax details as a array with productid, taxid, taxname, percentage and deleted
+	 */
+	public static function getTaxDetailsForProduct($pdosrvid, $acvid, $available='all') {
+		global $adb;
+		if (!empty($acvid)) {
+			$seacvid = getSalesEntityType($acvid);
+			$acvttype = 0;
+			switch ($seacvid) {
+				case 'Accounts':
+					$ttrs = $adb->pquery('select taxtypeid from vtiger_account where accountid=?', $acvid);
+					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
+					break;
+				case 'Contacts':
+					$ttrs = $adb->pquery('select taxtypeid from vtiger_contactdetails where contactid=?', $acvid);
+					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
+					break;
+				case 'Vendors':
+					$ttrs = $adb->pquery('select taxtypeid from vtiger_vendor where vendorid=?', $acvid);
+					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
+					break;
+			}
+		}
+		if (!empty($pdosrvid)) {
+			$sepdosrvid = getSalesEntityType($pdosrvid);
+			$psttype = 0;
+			switch ($sepdosrvid) {
+				case 'Accounts':
+					$ttrs = $adb->pquery('select taxtypeid from vtiger_products where productid=?', $pdosrvid);
+					if ($ttrs) $psttype = $adb->query_result($ttrs, 0, 0);
+					break;
+				case 'Contacts':
+					$ttrs = $adb->pquery('select taxtypeid from vtiger_service where serviceid=?', $pdosrvid);
+					if ($ttrs) $psttype = $adb->query_result($ttrs, 0, 0);
+					break;
+			}
+		}
+		$sql = 'select corebostaxid as taxid, taxname, taxp as percentage, deleted from vtiger_corebostax inner join vtiger_crmentity on crmid=corebostaxid ';
+/*
+		if (empty($acvttype)) {
+			if (empty($psttype)) {
+				// return all non-related taxes
+				$where = "where ((acvtaxtype is null or acvtaxtype = '') and (pdotaxtype is null or pdotaxtype = '')) ";
+				if($available != 'all' && $available == 'available')
+				{
+					$where = " and deleted=0 and corebostaxactive='1' ";
+				} else {
+					$query = "SELECT vtiger_producttaxrel.*, vtiger_inventorytaxinfo.* FROM vtiger_inventorytaxinfo INNER JOIN vtiger_producttaxrel ON vtiger_inventorytaxinfo.taxid = vtiger_producttaxrel.taxid WHERE vtiger_producttaxrel.productid = ? $where";
+				}
+ * 
+ * 			 
+			} else {
+				$tax = all taxes of Pdo(TxTy) and empty(cta(TxTy))
+				if (empty($tax)) {
+					$tax = all non-related taxes
+				}
+				return $tax
+			}
+		} else {
+			if (empty($psttype)) {
+				$tax = all taxes of cta(TxTy) and empty(Pdo(TxTy))
+				if ((empty($tax))) {
+					$tax = all non-related taxes
+				}
+				return $tax
+			} else {
+				$tax = all taxes of Pdo(TxTy) and cta(TxTy)
+				if (empty($tax)) {
+					$tax = all taxes of cta(TxTy) and empty(Pdo(TxTy))
+				}
+				if (empty($tax)) {
+					$tax = all taxes of Pdo(TxTy) and empty(cta(TxTy))
+				}
+				return $tax
+			}
+		}
+ */
+	}
+
+	public static function getProductTaxPercentage($type, $productid, $acvid, $default='') {
+		
+	}
+
+	public static function getAllTaxes($available='all', $sh='', $mode='', $crmid='') {
+		
+	}
+
+	public static function getTaxPercentage($type) {
+		
+	}
+
+	public static function getTaxId($type) {
+		
+	}
+
 }
 ?>
