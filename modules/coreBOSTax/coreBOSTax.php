@@ -482,6 +482,7 @@ class coreBOSTax extends CRMEntity {
 
 	/**	Function used to get all the tax details which are associated to the given product
 	 *	@param int $productid - product/service id for which we want to get all the associated taxes
+	 *	@param int $acvid - account/contact/vendor id for which we want to get all the associated taxes
 	 *	@param string $available - available, available_associated or all. default is all
 	 *    if available then the taxes which are available now will be returned,
 	 *    if all then all taxes will be returned
@@ -522,62 +523,133 @@ class coreBOSTax extends CRMEntity {
 					break;
 			}
 		}
-		$sql = 'select corebostaxid as taxid, taxname, taxp as percentage, deleted from vtiger_corebostax inner join vtiger_crmentity on crmid=corebostaxid ';
-/*
+		$sql = 'select corebostaxid as taxid, taxname, taxp as taxpercentage, deleted
+			from vtiger_corebostax
+			inner join vtiger_crmentity on crmid=corebostaxid ';
 		if (empty($acvttype)) {
 			if (empty($psttype)) {
 				// return all non-related taxes
 				$where = "where ((acvtaxtype is null or acvtaxtype = '') and (pdotaxtype is null or pdotaxtype = '')) ";
-				if($available != 'all' && $available == 'available')
-				{
-					$where = " and deleted=0 and corebostaxactive='1' ";
-				} else {
-					$query = "SELECT vtiger_producttaxrel.*, vtiger_inventorytaxinfo.* FROM vtiger_inventorytaxinfo INNER JOIN vtiger_producttaxrel ON vtiger_inventorytaxinfo.taxid = vtiger_producttaxrel.taxid WHERE vtiger_producttaxrel.productid = ? $where";
-				}
- * 
- * 			 
 			} else {
-				$tax = all taxes of Pdo(TxTy) and empty(cta(TxTy))
-				if (empty($tax)) {
-					$tax = all non-related taxes
-				}
-				return $tax
+				// all taxes of Pdo(TxTy) and empty(cta(TxTy))
+				$where = "where ((acvtaxtype is null or acvtaxtype = '') and (pdotaxtype = '$psttype')) ";
 			}
 		} else {
 			if (empty($psttype)) {
-				$tax = all taxes of cta(TxTy) and empty(Pdo(TxTy))
-				if ((empty($tax))) {
-					$tax = all non-related taxes
-				}
-				return $tax
+				// all taxes of cta(TxTy) and empty(Pdo(TxTy))
+				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype is null or pdotaxtype = '')) ";
 			} else {
-				$tax = all taxes of Pdo(TxTy) and cta(TxTy)
-				if (empty($tax)) {
-					$tax = all taxes of cta(TxTy) and empty(Pdo(TxTy))
-				}
-				if (empty($tax)) {
-					$tax = all taxes of Pdo(TxTy) and empty(cta(TxTy))
-				}
-				return $tax
+				// all taxes of Pdo(TxTy) and cta(TxTy)
+				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype = '$psttype')) ";
 			}
 		}
- */
+		if($available != 'all') {
+			$where .= " and deleted=0 and corebostaxactive='1' ";
+		}
+		$taxrs = $adb->query($sql.$where);
+		if ($adb->num_rows($taxrs)==0) {
+			if (!empty($acvttype) and !empty($psttype)) {
+				// all taxes of cta(TxTy) and empty(Pdo(TxTy))
+				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype is null or pdotaxtype = '')) ";
+				if($available != 'all') {
+					$where .= " and deleted=0 and corebostaxactive='1' ";
+				}
+				$taxrs = $adb->query($sql.$where);
+				if ($adb->num_rows($taxrs)==0) {
+					// all taxes of Pdo(TxTy) and empty(cta(TxTy))
+					$where = "where ((acvtaxtype is null or acvtaxtype = '') and (pdotaxtype = '$psttype')) ";
+					if($available != 'all') {
+						$where .= " and deleted=0 and corebostaxactive='1' ";
+					}
+					$taxrs = $adb->query($sql.$where);
+				}
+			}
+		}
+		if ($adb->num_rows($taxrs)==0 and $available=='all') {
+			// all non-related taxes
+			$where = "where ((acvtaxtype is null or acvtaxtype = '') and (pdotaxtype is null or pdotaxtype = '')) ";
+			$where .= " and deleted=0 and corebostaxactive='1' ";
+			$taxrs = $adb->query($sql.$where);
+		}
+		$taxes = array();
+		$i = 0;
+		while ($tax = $adb->fetch_array($taxrs)) {
+			$tax_details = array();
+			$tax_details['productid'] = $pdosrvid;
+			$tax_details['taxid'] = $tax['taxid'];
+			$tax_details['taxname'] = $tax['taxname'];
+			$tax_details['taxlabel'] = $tax['taxname'];
+			$tax_details['percentage'] = $tax['taxpercentage'];
+			$tax_details['deleted'] = $tax['deleted'];
+			$taxes[$i] = $tax_details;
+			$i++;
+		}
+		return $taxes;
 	}
 
-	public static function getProductTaxPercentage($type, $productid, $acvid, $default='') {
-		
+	/**	function to get the product's taxpercentage
+	 *	@param string $taxname - tax name (VAT or Sales or Service)
+	 *	@param int $productid  - product/service id for which we want the tax percentage
+	 *	@param int $acvid      - account/contact/vendor id for which we want to get all the associated taxes
+	 *	@param id  $default    - ignored
+	 *	return int $taxpercentage - taxpercentage corresponding to the Tax type from vtiger_inventorytaxinfo vtiger_table
+	 */
+	public static function getProductTaxPercentage($taxname, $pdosrvid, $acvid, $default='') {
+		$taxes = self::getTaxDetailsForProduct($pdosrvid, $acvid, 'available');
+		$taxp = 0;
+		foreach ($taxes as $key => $tax) {
+			if ($tax['taxname']==$taxname) {
+				$taxp = $tax['percentage'];
+				break;
+			}
+		}
+		return $taxp;
 	}
 
+	/**	Function used to get the list of Tax types as a array
+	 *	@param string $available - available or empty where as default is all,
+	 * 		if available then the taxes which are available now will be returned
+	 * 		otherwise all taxes will be returned
+	 *	@param string $sh - sh or empty, if sh passed then the shipping and handling related taxes will be returned
+	 *	@param string $mode - edit or empty, if mode is edit, then it will return taxes including disabled.
+	 *	@param string $id - crmid or empty, getting crmid to get tax values..
+	 *	return array $taxtypes - return all the tax types as a array
+	 */
 	public static function getAllTaxes($available='all', $sh='', $mode='', $crmid='') {
-		
+		$taxes = self::getTaxDetailsForProduct(0, 0, $available);
+		return $taxes;
 	}
 
-	public static function getTaxPercentage($type) {
-		
+	/**	function to get the taxpercentage
+	 *	@param string $taxname    - tax name (VAT or Sales or Service)
+	 *	return int $taxpercentage - taxpercentage corresponding to the Tax type
+	 */
+	public static function getTaxPercentage($taxname) {
+		$taxes = self::getTaxDetailsForProduct(0, 0, $available);
+		$taxp = 0;
+		foreach ($taxes as $key => $tax) {
+			if ($tax['taxname']==$taxname) {
+				$taxp = $tax['percentage'];
+				break;
+			}
+		}
+		return $taxp;
 	}
 
-	public static function getTaxId($type) {
-		
+	/**	function to get the taxid
+	 *	@param string $taxname - tax name (VAT or Sales or Service)
+	 *	return int   $taxid    - taxid corresponding to the Tax type
+	 */
+	public static function getTaxId($taxname) {
+		$taxes = self::getTaxDetailsForProduct(0, 0, $available);
+		$taxid = 0;
+		foreach ($taxes as $key => $tax) {
+			if ($tax['taxname']==$taxname) {
+				$taxid = $tax['taxid'];
+				break;
+			}
+		}
+		return $taxid;
 	}
 
 }
