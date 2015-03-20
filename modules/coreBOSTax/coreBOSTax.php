@@ -490,7 +490,7 @@ class coreBOSTax extends CRMEntity {
 	 *	@return array $tax_details - tax details as a array with productid, taxid, taxname, percentage and deleted
 	 */
 	public static function getTaxDetailsForProduct($pdosrvid, $acvid, $available='all') {
-		global $adb;
+		global $adb, $taxvalidationinfo;
 		if (!empty($acvid)) {
 			$seacvid = getSalesEntityType($acvid);
 			$acvttype = 0;
@@ -498,77 +498,102 @@ class coreBOSTax extends CRMEntity {
 				case 'Accounts':
 					$ttrs = $adb->pquery('select taxtypeid from vtiger_account where accountid=?', $acvid);
 					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
+					$taxvalidationinfo[] = 'Related Account found';
 					break;
 				case 'Contacts':
 					$ttrs = $adb->pquery('select taxtypeid from vtiger_contactdetails where contactid=?', $acvid);
 					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
+					$taxvalidationinfo[] = 'Related Contact found';
 					break;
 				case 'Vendors':
 					$ttrs = $adb->pquery('select taxtypeid from vtiger_vendor where vendorid=?', $acvid);
 					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
+					$taxvalidationinfo[] = 'Related Vendor found';
 					break;
 			}
+			if (empty($acvttype))
+				$taxvalidationinfo[] = 'Entity tax type not found.';
+			else {
+				$taxvalidationinfo[] = 'Entity tax type found: '.$acvttype;
+			}
+		} else {
+			$taxvalidationinfo[] = 'No related entity';
 		}
 		if (!empty($pdosrvid)) {
 			$sepdosrvid = getSalesEntityType($pdosrvid);
 			$psttype = 0;
 			switch ($sepdosrvid) {
-				case 'Accounts':
+				case 'Products':
 					$ttrs = $adb->pquery('select taxtypeid from vtiger_products where productid=?', $pdosrvid);
 					if ($ttrs) $psttype = $adb->query_result($ttrs, 0, 0);
+					$taxvalidationinfo[] = 'Related Products found';
 					break;
-				case 'Contacts':
+				case 'Services':
 					$ttrs = $adb->pquery('select taxtypeid from vtiger_service where serviceid=?', $pdosrvid);
 					if ($ttrs) $psttype = $adb->query_result($ttrs, 0, 0);
+					$taxvalidationinfo[] = 'Related Services found';
 					break;
 			}
+			if (empty($psttype))
+				$taxvalidationinfo[] = 'Product/Service tax type not found.';
+			else {
+				$taxvalidationinfo[] = 'Product/Service tax type found: '.$psttype;
+			}
+		} else {
+			$taxvalidationinfo[] = 'No related product/service';
 		}
 		$sql = 'select corebostaxid as taxid, taxname, taxp as taxpercentage, deleted
 			from vtiger_corebostax
 			inner join vtiger_crmentity on crmid=corebostaxid ';
 		if (empty($acvttype)) {
 			if (empty($psttype)) {
-				// return all non-related taxes
-				$where = "where ((acvtaxtype is null or acvtaxtype = '') and (pdotaxtype is null or pdotaxtype = '')) ";
+				$taxvalidationinfo[] = 'both empty return all non-related taxes';
+				$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype is null or pdotaxtype = 0)) ";
 			} else {
-				// all taxes of Pdo(TxTy) and empty(cta(TxTy))
-				$where = "where ((acvtaxtype is null or acvtaxtype = '') and (pdotaxtype = '$psttype')) ";
+				$taxvalidationinfo[] = 'all taxes of PdoSrv(TxTy) and empty(ACV(TxTy))';
+				$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype = '$psttype')) ";
 			}
 		} else {
 			if (empty($psttype)) {
 				// all taxes of cta(TxTy) and empty(Pdo(TxTy))
-				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype is null or pdotaxtype = '')) ";
+				$taxvalidationinfo[] = 'all taxes of empty(PdoSrv(TxTy)) and ACV(TxTy)';
+				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype is null or pdotaxtype = 0)) ";
 			} else {
-				// all taxes of Pdo(TxTy) and cta(TxTy)
+				$taxvalidationinfo[] = 'all taxes of PdoSrv(TxTy) and ACV(TxTy)';
 				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype = '$psttype')) ";
 			}
 		}
 		if($available != 'all') {
 			$where .= " and deleted=0 and corebostaxactive='1' ";
 		}
+		$taxvalidationinfo[] = 'looking for taxes '.$where;
 		$taxrs = $adb->query($sql.$where);
 		if ($adb->num_rows($taxrs)==0) {
+			$taxvalidationinfo[] = 'no taxes found > we insist';
 			if (!empty($acvttype) and !empty($psttype)) {
-				// all taxes of cta(TxTy) and empty(Pdo(TxTy))
-				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype is null or pdotaxtype = '')) ";
+				$taxvalidationinfo[] = 'taxes of ACV(TxTy) and empty(PdoSrv(TxTy))';
+				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype is null or pdotaxtype = 0)) ";
 				if($available != 'all') {
 					$where .= " and deleted=0 and corebostaxactive='1' ";
 				}
+				$taxvalidationinfo[] = 'looking for taxes '.$where;
 				$taxrs = $adb->query($sql.$where);
 				if ($adb->num_rows($taxrs)==0) {
-					// all taxes of Pdo(TxTy) and empty(cta(TxTy))
-					$where = "where ((acvtaxtype is null or acvtaxtype = '') and (pdotaxtype = '$psttype')) ";
+					$taxvalidationinfo[] = 'taxes of empty(ACV(TxTy)) and PdoSrv(TxTy)';
+					$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype = '$psttype')) ";
 					if($available != 'all') {
 						$where .= " and deleted=0 and corebostaxactive='1' ";
 					}
+					$taxvalidationinfo[] = 'looking for taxes '.$where;
 					$taxrs = $adb->query($sql.$where);
 				}
 			}
 		}
 		if ($adb->num_rows($taxrs)==0 and $available=='all') {
-			// all non-related taxes
-			$where = "where ((acvtaxtype is null or acvtaxtype = '') and (pdotaxtype is null or pdotaxtype = '')) ";
+			$taxvalidationinfo[] = 'all non-related taxes';
+			$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype is null or pdotaxtype = 0)) ";
 			$where .= " and deleted=0 and corebostaxactive='1' ";
+			$taxvalidationinfo[] = 'looking for taxes '.$where;
 			$taxrs = $adb->query($sql.$where);
 		}
 		$taxes = array();
@@ -582,6 +607,9 @@ class coreBOSTax extends CRMEntity {
 			$tax_details['percentage'] = $tax['taxpercentage'];
 			$tax_details['deleted'] = $tax['deleted'];
 			$taxes[$i] = $tax_details;
+			$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['taxid'].'">';
+			$taxfound.= $tax['taxname'].'</a> '.$tax['taxpercentage'];
+			$taxvalidationinfo[] = "<h3>Tax found: $taxfound</H3>";
 			$i++;
 		}
 		return $taxes;

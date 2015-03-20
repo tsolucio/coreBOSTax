@@ -21,6 +21,8 @@ $mod_strings = Array(
 	'LBL_CUSTOM_INFORMATION' => 'Información Personalizada',
 	'LBL_COREBOSTAX_INFORMATION' => 'Información Impuesto',
 	'LBL_DESCRIPTION_INFORMATION' => 'Descripción',
+	'Test' => 'Validación',
+	'Available' => 'Disponible',
 );
 
 ?>
