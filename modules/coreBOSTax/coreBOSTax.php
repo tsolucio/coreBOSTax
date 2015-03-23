@@ -514,7 +514,7 @@ class coreBOSTax extends CRMEntity {
 			if (empty($acvttype))
 				$taxvalidationinfo[] = 'Entity tax type not found.';
 			else {
-				$taxvalidationinfo[] = 'Entity tax type found: '.$acvttype;
+				$taxvalidationinfo[] = 'Entity tax type found: <a href="index.php?module=cbTaxType&action=DetailView&record='.$acvttype.'">'.$acvttype.'</a>';
 			}
 		} else {
 			$taxvalidationinfo[] = 'No related entity';
@@ -537,7 +537,7 @@ class coreBOSTax extends CRMEntity {
 			if (empty($psttype))
 				$taxvalidationinfo[] = 'Product/Service tax type not found.';
 			else {
-				$taxvalidationinfo[] = 'Product/Service tax type found: '.$psttype;
+				$taxvalidationinfo[] = 'Product/Service tax type found: <a href="index.php?module=cbTaxType&action=DetailView&record='.$psttype.'">'.$psttype.'</a>';
 			}
 		} else {
 			$taxvalidationinfo[] = 'No related product/service';
@@ -547,7 +547,7 @@ class coreBOSTax extends CRMEntity {
 			inner join vtiger_crmentity on crmid=corebostaxid ';
 		if (empty($acvttype)) {
 			if (empty($psttype)) {
-				$taxvalidationinfo[] = 'both empty return all non-related taxes';
+				$taxvalidationinfo[] = 'both empty > return all non-related taxes';
 				$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype is null or pdotaxtype = 0)) ";
 			} else {
 				$taxvalidationinfo[] = 'all taxes of PdoSrv(TxTy) and empty(ACV(TxTy))';
@@ -609,7 +609,7 @@ class coreBOSTax extends CRMEntity {
 			$taxes[$i] = $tax_details;
 			$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['taxid'].'">';
 			$taxfound.= $tax['taxname'].'</a> '.$tax['taxpercentage'];
-			$taxvalidationinfo[] = "<h3>Tax found: $taxfound</H3>";
+			$taxvalidationinfo[] = "<b>Tax found: $taxfound</b>";
 			$i++;
 		}
 		return $taxes;
