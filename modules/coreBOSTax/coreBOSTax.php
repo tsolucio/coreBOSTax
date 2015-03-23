@@ -496,17 +496,17 @@ class coreBOSTax extends CRMEntity {
 			$acvttype = 0;
 			switch ($seacvid) {
 				case 'Accounts':
-					$ttrs = $adb->pquery('select taxtypeid from vtiger_account where accountid=?', $acvid);
+					$ttrs = $adb->pquery('select taxtypeid from vtiger_account where accountid=?', array($acvid));
 					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
 					$taxvalidationinfo[] = 'Related Account found';
 					break;
 				case 'Contacts':
-					$ttrs = $adb->pquery('select taxtypeid from vtiger_contactdetails where contactid=?', $acvid);
+					$ttrs = $adb->pquery('select taxtypeid from vtiger_contactdetails where contactid=?', array($acvid));
 					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
 					$taxvalidationinfo[] = 'Related Contact found';
 					break;
 				case 'Vendors':
-					$ttrs = $adb->pquery('select taxtypeid from vtiger_vendor where vendorid=?', $acvid);
+					$ttrs = $adb->pquery('select taxtypeid from vtiger_vendor where vendorid=?', array($acvid));
 					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
 					$taxvalidationinfo[] = 'Related Vendor found';
 					break;
@@ -524,12 +524,12 @@ class coreBOSTax extends CRMEntity {
 			$psttype = 0;
 			switch ($sepdosrvid) {
 				case 'Products':
-					$ttrs = $adb->pquery('select taxtypeid from vtiger_products where productid=?', $pdosrvid);
+					$ttrs = $adb->pquery('select taxtypeid from vtiger_products where productid=?', array($pdosrvid));
 					if ($ttrs) $psttype = $adb->query_result($ttrs, 0, 0);
 					$taxvalidationinfo[] = 'Related Products found';
 					break;
 				case 'Services':
-					$ttrs = $adb->pquery('select taxtypeid from vtiger_service where serviceid=?', $pdosrvid);
+					$ttrs = $adb->pquery('select taxtypeid from vtiger_service where serviceid=?', array($pdosrvid));
 					if ($ttrs) $psttype = $adb->query_result($ttrs, 0, 0);
 					$taxvalidationinfo[] = 'Related Services found';
 					break;
