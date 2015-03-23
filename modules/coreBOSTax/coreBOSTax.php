@@ -434,11 +434,19 @@ class coreBOSTax extends CRMEntity {
 	 */
 	function vtlib_handler($modulename, $event_type) {
 		if($event_type == 'module.postinstall') {
+			// TODO Handle post installation actions
 			$taxtype=Vtiger_Module::getInstance('cbTaxType');
 			$module=Vtiger_Module::getInstance('coreBOSTax');
 			if ($taxtype) $taxtype->setRelatedList($module, $modulename, Array('ADD'),'get_dependents_list');
-			// TODO Handle post installation actions
-			$this->setModuleSeqNumber('configure', $modulename, $modulename.'-', '0000001');
+			$this->setModuleSeqNumber('configure', $modulename, 'tax-', '0000001');
+			require_once('include/events/include.inc');
+			global $adb;
+			$em = new VTEventsManager($adb);
+			$em->registerHandler('corebos.filter.TaxCalculation.getTaxDetailsForProduct', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
+			$em->registerHandler('corebos.filter.TaxCalculation.getProductTaxPercentage', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
+			$em->registerHandler('corebos.filter.TaxCalculation.getAllTaxes', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
+			$em->registerHandler('corebos.filter.TaxCalculation.getTaxPercentage', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
+			$em->registerHandler('corebos.filter.TaxCalculation.getTaxId', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
 		} else if($event_type == 'module.disabled') {
 			// TODO Handle actions when this module is disabled.
 		} else if($event_type == 'module.enabled') {
