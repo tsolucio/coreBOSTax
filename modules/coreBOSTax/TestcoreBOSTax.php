@@ -45,7 +45,7 @@
 	padding-right:20px;
 	padding-top: 12px;
 }
-#gvtestresults {
+#taxtestresults {
 	width: 96%;
 	margin: auto;
 	font-size: medium;
