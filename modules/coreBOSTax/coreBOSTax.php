@@ -574,9 +574,7 @@ class coreBOSTax extends CRMEntity {
 		if($available != 'all') {
 			$where .= " and deleted=0 and corebostaxactive='1' ";
 		}
-		if($shipping) {
-			$where .= " and shipping='1' ";
-		}
+		$where .= " and shipping='".($shipping ? '1' : '0')."' ";
 		$taxvalidationinfo[] = 'looking for taxes '.$where;
 		$taxrs = $adb->query($sql.$where);
 		if ($adb->num_rows($taxrs)==0) {
@@ -587,9 +585,7 @@ class coreBOSTax extends CRMEntity {
 				if($available != 'all') {
 					$where .= " and deleted=0 and corebostaxactive='1' ";
 				}
-				if($shipping) {
-					$where .= " and shipping='1' ";
-				}
+				$where .= " and shipping='".($shipping ? '1' : '0')."' ";
 				$taxvalidationinfo[] = 'looking for taxes '.$where;
 				$taxrs = $adb->query($sql.$where);
 				if ($adb->num_rows($taxrs)==0) {
@@ -598,9 +594,7 @@ class coreBOSTax extends CRMEntity {
 					if($available != 'all') {
 						$where .= " and deleted=0 and corebostaxactive='1' ";
 					}
-					if($shipping) {
-						$where .= " and shipping='1' ";
-					}
+					$where .= " and shipping='".($shipping ? '1' : '0')."' ";
 					$taxvalidationinfo[] = 'looking for taxes '.$where;
 					$taxrs = $adb->query($sql.$where);
 				}
@@ -609,7 +603,7 @@ class coreBOSTax extends CRMEntity {
 		if ($adb->num_rows($taxrs)==0 and $available=='all') {
 			$taxvalidationinfo[] = 'all non-related taxes';
 			$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype is null or pdotaxtype = 0)) ";
-			$where .= " and deleted=0 and corebostaxactive='1' ".($shipping ? " and shipping='1' " : '');
+			$where .= " and deleted=0 and corebostaxactive='1' and shipping='".($shipping ? '1' : '0')."' ";
 			$taxvalidationinfo[] = 'looking for taxes '.$where;
 			$taxrs = $adb->query($sql.$where);
 		}
