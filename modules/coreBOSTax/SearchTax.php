@@ -21,11 +21,12 @@ require_once 'modules/coreBOSTax/coreBOSTax.php';
 $accid = vtlib_purify($_REQUEST['acc']);
 $pdoid = vtlib_purify($_REQUEST['pdo']);
 $available = vtlib_purify($_REQUEST['avl']);
+$shipping = vtlib_purify($_REQUEST['ship']);
 $retval = vtlib_purify($_REQUEST['returnvalidation']);
 global $taxvalidationinfo;
 $taxvalidationinfo = array();
 $startTime = microtime(true);
-$taxes = coreBOSTax::getTaxDetailsForProduct($pdoid, $accid, $available);
+$taxes = coreBOSTax::getTaxDetailsForProduct($pdoid, $accid, $available, (empty($shipping) ? false : true));
 $counter = (microtime(true) - $startTime);
 $ret = array('taxes'=>$taxes);
 if ($retval) {

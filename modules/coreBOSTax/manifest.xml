@@ -38,6 +38,7 @@
   `acvtaxtype` int(11) default NULL,
   `pdotaxtype` int(11) default NULL,
   `taxp` decimal(5,2) default NULL,
+  `shipping` varchar(3) default NULL,
   PRIMARY KEY (`coreBOSTaxid`),
   KEY `cbtax` (`corebostaxactive`,`acvtaxtype`,`pdotaxtype`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
@@ -90,7 +91,7 @@
 <selected>0</selected>
 <sequence>2</sequence>
 <maximumlength>3</maximumlength>
-<typeofdata>V~O</typeofdata>
+<typeofdata>C~O</typeofdata>
 <defaultvalue>1</defaultvalue>
 <quickcreate>0</quickcreate>
 <quickcreatesequence>0</quickcreatesequence>
@@ -225,6 +226,27 @@
 <helpinfo><![CDATA[]]></helpinfo>
 <masseditable>1</masseditable>
 </field>
+<field>
+<fieldname>shipping</fieldname>
+<uitype>56</uitype>
+<columnname>shipping</columnname>
+<tablename>vtiger_corebostax</tablename>
+<generatedtype>1</generatedtype>
+<fieldlabel>shipping</fieldlabel>
+<readonly>1</readonly>
+<presence>0</presence>
+<selected>0</selected>
+<sequence>9</sequence>
+<maximumlength>3</maximumlength>
+<typeofdata>C~O</typeofdata>
+<defaultvalue>1</defaultvalue>
+<quickcreate>0</quickcreate>
+<quickcreatesequence>0</quickcreatesequence>
+<displaytype>1</displaytype>
+<info_type>BAS</info_type>
+<helpinfo><![CDATA[]]></helpinfo>
+<masseditable>1</masseditable>
+</field>
 </fields>
 </block>
 <block>
@@ -279,8 +301,12 @@
 <columnindex>3</columnindex>
 </field>
 <field>
-<fieldname>corebostaxactive</fieldname>
+<fieldname>shipping</fieldname>
 <columnindex>4</columnindex>
+</field>
+<field>
+<fieldname>corebostaxactive</fieldname>
+<columnindex>5</columnindex>
 </field>
 </fields>
 </customview>
@@ -306,7 +332,7 @@
 <columnindex>3</columnindex>
 </field>
 <field>
-<fieldname>corebostaxactive</fieldname>
+<fieldname>shipping</fieldname>
 <columnindex>4</columnindex>
 </field>
 </fields>

@@ -23,6 +23,7 @@ $mod_strings = Array(
 	'LBL_DESCRIPTION_INFORMATION' => 'Description',
 	'Test' => 'Test',
 	'Available' => 'Available',
+	'Shipping' => 'Shipping',
 );
 
 ?>

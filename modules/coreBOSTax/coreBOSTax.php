@@ -497,7 +497,7 @@ class coreBOSTax extends CRMEntity {
 	 *    if available_associated then all the associated taxes even if they are not available and all the available taxes will be retruned
 	 *	@return array $tax_details - tax details as a array with productid, taxid, taxname, percentage and deleted
 	 */
-	public static function getTaxDetailsForProduct($pdosrvid, $acvid, $available='all') {
+	public static function getTaxDetailsForProduct($pdosrvid, $acvid, $available='all',$shipping=false) {
 		global $adb, $taxvalidationinfo;
 		if (!empty($acvid)) {
 			$seacvid = getSalesEntityType($acvid);
@@ -574,6 +574,9 @@ class coreBOSTax extends CRMEntity {
 		if($available != 'all') {
 			$where .= " and deleted=0 and corebostaxactive='1' ";
 		}
+		if($shipping) {
+			$where .= " and shipping='1' ";
+		}
 		$taxvalidationinfo[] = 'looking for taxes '.$where;
 		$taxrs = $adb->query($sql.$where);
 		if ($adb->num_rows($taxrs)==0) {
@@ -584,6 +587,9 @@ class coreBOSTax extends CRMEntity {
 				if($available != 'all') {
 					$where .= " and deleted=0 and corebostaxactive='1' ";
 				}
+				if($shipping) {
+					$where .= " and shipping='1' ";
+				}
 				$taxvalidationinfo[] = 'looking for taxes '.$where;
 				$taxrs = $adb->query($sql.$where);
 				if ($adb->num_rows($taxrs)==0) {
@@ -591,6 +597,9 @@ class coreBOSTax extends CRMEntity {
 					$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype = '$psttype')) ";
 					if($available != 'all') {
 						$where .= " and deleted=0 and corebostaxactive='1' ";
+					}
+					if($shipping) {
+						$where .= " and shipping='1' ";
 					}
 					$taxvalidationinfo[] = 'looking for taxes '.$where;
 					$taxrs = $adb->query($sql.$where);
@@ -600,7 +609,7 @@ class coreBOSTax extends CRMEntity {
 		if ($adb->num_rows($taxrs)==0 and $available=='all') {
 			$taxvalidationinfo[] = 'all non-related taxes';
 			$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype is null or pdotaxtype = 0)) ";
-			$where .= " and deleted=0 and corebostaxactive='1' ";
+			$where .= " and deleted=0 and corebostaxactive='1' ".($shipping ? " and shipping='1' " : '');
 			$taxvalidationinfo[] = 'looking for taxes '.$where;
 			$taxrs = $adb->query($sql.$where);
 		}
@@ -652,7 +661,7 @@ class coreBOSTax extends CRMEntity {
 	 *	return array $taxtypes - return all the tax types as a array
 	 */
 	public static function getAllTaxes($available='all', $sh='', $mode='', $crmid='') {
-		$taxes = self::getTaxDetailsForProduct(0, 0, $available);
+		$taxes = self::getTaxDetailsForProduct(0, 0, $available, (empty($sh) ? false : true));
 		return $taxes;
 	}
 

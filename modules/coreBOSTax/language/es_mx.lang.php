@@ -23,6 +23,7 @@ $mod_strings = Array(
 	'LBL_DESCRIPTION_INFORMATION' => 'Descripción',
 	'Test' => 'Validación',
 	'Available' => 'Disponible',
+	'Shipping' => 'Impuesto de Envíos',
 );
 
 ?>

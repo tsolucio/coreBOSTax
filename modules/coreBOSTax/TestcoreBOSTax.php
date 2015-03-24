@@ -23,8 +23,9 @@
 		var acc = jQuery('#acc_to').val();
 		var pdo = jQuery('#pdo_to').val();
 		var avl = jQuery('#available').val();
+		var shp = jQuery('#shipping').prop('checked') ? '1' : '0';
 		jQuery.ajax({
-			url: "index.php?action=coreBOSTaxAjax&file=SearchTax&module=coreBOSTax&acc="+acc+"&pdo="+pdo+"&avl="+avl+"&returnvalidation=1",
+			url: "index.php?action=coreBOSTaxAjax&file=SearchTax&module=coreBOSTax&acc="+acc+"&pdo="+pdo+"&avl="+avl+"&ship="+shp+"&returnvalidation=1",
 			context: document.body
 		}).done(function(response) {
 			obj = JSON.parse(response);
@@ -91,6 +92,10 @@
 		<option value='available_associated'>available_associated</option>
 		<option value='all'>all</option>
 	</select></td>
+</tr>
+<tr>
+	<td class='gvtestlabeltext'><?php echo getTranslatedString('Shipping','coreBOSTax');?></td>
+	<td><input name="shipping" id="shipping" type="checkbox"></td>
 </tr>
 <tr><td style="height:6px"></td></tr>
 <tr>
