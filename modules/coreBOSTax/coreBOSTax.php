@@ -657,7 +657,39 @@ class coreBOSTax extends CRMEntity {
 	 *	return array $taxtypes - return all the tax types as a array
 	 */
 	public static function getAllTaxes($available='all', $sh='', $mode='', $crmid='') {
-		$taxes = self::getTaxDetailsForProduct(0, 0, $available, (empty($sh) ? false : true));
+		global $adb, $log, $taxvalidationinfo;
+		if($mode == 'edit' && $id != '' ) {
+			if($sh != '' && $sh == 'sh') {
+				$ship = '1';
+			} else {
+				$ship = '0';
+			}
+			$res = $adb->pquery("select * from vtiger_corebostaxinventory
+			 left join vtiger_crmentity on crmid = cbtaxid
+			 where invid=? and shipping=?",array($crmid,$ship));
+			$taxes = array();
+			$i = 0;
+			while ($tax=$adb->fetch_array($res)) {
+				$tax_details = array();
+				$tax_details['productid'] = $tax['pdoid'];
+				$tax_details['taxid'] = $tax['cbtaxid'];
+				$tax_details['taxname'] = $tax['taxname'];
+				$tax_details['taxlabel'] = $tax['taxname'];
+				$tax_details['percentage'] = $tax['taxp'];
+				$tax_details['deleted'] = (empty($tax['deleted']) or $tax['deleted']=='1') ? '1' : '0';
+				$taxes[$i] = $tax_details;
+				$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['cbtaxid'].'">';
+				$taxfound.= $tax['taxname'].'</a> '.$tax['taxp'];
+				$taxvalidationinfo[] = "<b>getAllTaxes found: $taxfound</b>";
+				$i++;
+			}
+		} else {
+			$acvid = 0;
+			if (!empty($crmid)) { // we get the related ACV
+				$acvid = coreBOSTax::getParentACV($crmid,GlobalVariable::getVariable('B2B', '1'));
+			}
+			$taxes = self::getTaxDetailsForProduct(0, $acvid, $available, (empty($sh) ? false : true));
+		}
 		return $taxes;
 	}
 
@@ -724,6 +756,45 @@ class coreBOSTax extends CRMEntity {
 		else
 			$taxpercentage = '0.00';
 		return $taxpercentage;
+	}
+
+	public static function getParentACV($crmid,$b2b='1') {
+		global $adb, $log;
+		$secrm = getSalesEntityType($crmid);
+		switch ($secrm) {
+		case 'Quotes':
+			if ($b2b=='1')
+				$rspot = $adb->pquery('select accountid from vtiger_quotes where quoteid=?',array($crmid));
+			else
+				$rspot = $adb->pquery('select contactid from vtiger_quotes where quoteid=?',array($crmid));
+			break;
+		case 'SalesOrder':
+			if ($b2b=='1')
+				$rspot = $adb->pquery('select accountid from vtiger_salesorder where salesorderid=?',array($crmid));
+			else {
+				$rspot = $adb->pquery('select contactid from vtiger_salesorder where salesorderid=?',array($crmid));
+			}
+			break;
+		case 'Invoice':
+			if ($b2b=='1')
+				$rspot = $adb->pquery('select accountid from vtiger_invoice where invoiceid=?',array($crmid));
+			else {
+				$rspot = $adb->pquery('select contactid from vtiger_invoice where invoiceid=?',array($crmid));
+			}
+			break;
+		case 'PurchaseOrder':
+			$rspot = $adb->pquery('SELECT vendorid FROM vtiger_purchaseorder WHERE purchaseorderid=?',array($crmid));
+			break;
+		case 'Products':
+		case 'Services':
+			return 0;
+			break;
+		default:
+			return $crmid;
+			break;
+		}
+		$relid = $adb->query_result($rspot,0,0);
+		return $relid;
 	}
 
 }
