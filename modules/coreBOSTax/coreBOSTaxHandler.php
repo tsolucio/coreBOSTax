@@ -60,6 +60,17 @@ class coreBOSTaxEvents extends VTEventHandler {
 				$taxname = vtlib_purify($parameter[0]);
 				$parameter[1] = coreBOSTax::getTaxId($taxname);
 				break;
+			case 'corebos.filter.TaxCalculation.getInventoryProductTaxValue':
+				$id = vtlib_purify($parameter[0]);
+				$productid = vtlib_purify($parameter[1]);
+				$taxname = vtlib_purify($parameter[2]);
+				$parameter[3] = coreBOSTax::getInventoryProductTaxValue($id, $productid, $taxname);
+				break;
+			case 'corebos.filter.TaxCalculation.getInventorySHTaxPercent':
+				$id = vtlib_purify($parameter[0]);
+				$taxname = vtlib_purify($parameter[1]);
+				$parameter[2] = coreBOSTax::getInventorySHTaxPercent($id, $taxname);
+				break;
 		}
 		return $parameter;
 	}

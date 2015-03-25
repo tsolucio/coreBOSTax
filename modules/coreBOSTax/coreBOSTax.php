@@ -447,6 +447,8 @@ class coreBOSTax extends CRMEntity {
 			$em->registerHandler('corebos.filter.TaxCalculation.getAllTaxes', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
 			$em->registerHandler('corebos.filter.TaxCalculation.getTaxPercentage', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
 			$em->registerHandler('corebos.filter.TaxCalculation.getTaxId', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
+			$em->registerHandler('corebos.filter.TaxCalculation.getInventoryProductTaxValue', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
+			$em->registerHandler('corebos.filter.TaxCalculation.getInventorySHTaxPercent', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
 		} else if($event_type == 'module.disabled') {
 			// TODO Handle actions when this module is disabled.
 		} else if($event_type == 'module.enabled') {
@@ -689,6 +691,39 @@ class coreBOSTax extends CRMEntity {
 			}
 		}
 		return $taxid;
+	}
+
+	/**	function used to get the taxvalue which is associated with a product for PO/SO/Quotes or Invoice
+	 *	@param int $id - id of PO/SO/Quotes or Invoice
+	 *	@param int $productid - product id
+	 *	@param string $taxname - taxname to which we want the value
+	 *	@return float $taxvalue - tax value
+	 */
+	public static function getInventoryProductTaxValue($id, $productid, $taxname) {
+		global $log, $adb;
+		$res = $adb->pquery("select taxp from vtiger_corebostaxinventory where invid=? and pdoid=? and taxname=? and shipping='0'",
+			array($id, $productid,$taxname));
+		if ($res and $adb->num_rows($res)>0)
+			$taxvalue = $adb->query_result($res,0,'taxp');
+		else
+			$taxvalue = '0.00';
+		return $taxvalue;
+	}
+	
+	/**	function used to get the shipping & handling tax percentage for the given inventory id and taxname
+	 *	@param int $id - entity id which will be PO/SO/Quotes or Invoice id
+	 *	@param string $taxname - shipping and handling taxname
+	 *	@return float $taxpercentage - shipping and handling taxpercentage which is associated with the given entity
+	 */
+	public static function getInventorySHTaxPercent($id, $taxname) {
+		global $log, $adb;
+		$res = $adb->pquery("select taxp from vtiger_corebostaxinventory where invid=? and taxname=? and shipping='1'",
+			array($id,$taxname));
+		if ($res and $adb->num_rows($res)>0)
+			$taxpercentage = $adb->query_result($res,0,'taxp');
+		else
+			$taxpercentage = '0.00';
+		return $taxpercentage;
 	}
 
 }
