@@ -39,15 +39,30 @@
   `pdotaxtype` int(11) default NULL,
   `taxp` decimal(5,2) default NULL,
   `shipping` varchar(3) default NULL,
-  PRIMARY KEY (`coreBOSTaxid`),
-  KEY `cbtax` (`corebostaxactive`,`acvtaxtype`,`pdotaxtype`)
+  PRIMARY KEY (`corebostaxid`),
+  KEY `cbtax` (`corebostaxactive`,`acvtaxtype`,`pdotaxtype`,`shipping`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
 </table>
 <table>
 <name>vtiger_corebostaxcf</name>
 <sql><![CDATA[CREATE TABLE `vtiger_corebostaxcf` (
   `corebostaxid` int(11) NOT NULL,
-  PRIMARY KEY (`coreBOSTaxid`)
+  PRIMARY KEY (`corebostaxid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+</table>
+<table>
+<name>vtiger_corebostaxinventory</name>
+<sql><![CDATA[CREATE TABLE `vtiger_corebostaxinventory` (
+  `corebostaxinvid` int(11) NOT NULL AUTO_INCREMENT,
+  `taxname` varchar(100) NOT NULL,
+  `invid` int(11) default NULL,
+  `pdoid` int(11) default NULL,
+  `taxp` decimal(5,2) default NULL,
+  `shipping` varchar(3) default NULL,
+  `cbtaxid` int(11) default NULL,
+  `lineitemid` int(11) default NULL,
+  PRIMARY KEY (`corebostaxinvid`),
+  KEY `cbtax` (`invid`,`pdoid`,`taxname`,`shipping`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
 </table>
 </tables>
@@ -358,6 +373,13 @@
 <sharingaccess>
 <default>public</default>
 </sharingaccess>
+<events>
+<event>
+<eventname>vtiger.entity.aftersave</eventname>
+<classname><![CDATA[coreBOSTaxInventoryHandler]]></classname>
+<filename><![CDATA[modules/coreBOSTax/coreBOSTaxInventoryHandler.php]]></filename>
+</event>
+</events>
 <actions>
 <action>
 <name><![CDATA[Merge]]></name>
