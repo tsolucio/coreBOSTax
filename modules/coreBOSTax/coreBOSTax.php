@@ -689,14 +689,38 @@ class coreBOSTax extends CRMEntity {
 			} else {
 				$acvid = 0;
 				if (isset($_REQUEST['return_module'])) {
-					if ($_REQUEST['return_module']=='PurchaseOrder') {
-						$acvid = $_REQUEST['vndid'];
-					} else {
-						if (GlobalVariable::getVariable('B2B', '1')=='1') {
-							$acvid = $_REQUEST['accid'];
-						} else {
-							$acvid = $_REQUEST['ctoid'];
-						}
+					switch ($_REQUEST['return_module']) {
+						case 'Vendors':
+							if (isset($_REQUEST['return_id']))
+								$acvid = $_REQUEST['return_id'];
+							elseif (isset($_REQUEST['vndid'])) {
+								$acvid = $_REQUEST['vndid'];
+							}
+							break;
+						case 'Accounts':
+							if (isset($_REQUEST['return_id']))
+								$acvid = $_REQUEST['return_id'];
+							elseif (isset($_REQUEST['accid'])) {
+								$acvid = $_REQUEST['accid'];
+							}
+							break;
+						case 'Contacts':
+							if (isset($_REQUEST['return_id']))
+								$acvid = $_REQUEST['return_id'];
+							elseif (isset($_REQUEST['ctoid'])) {
+								$acvid = $_REQUEST['ctoid'];
+							}
+							break;
+						case 'PurchaseOrder':
+							if (isset($_REQUEST['vndid'])) $acvid = $_REQUEST['vndid'];
+							break;
+						default: // Quotes, SalesOrder and Invoice
+							if (GlobalVariable::getVariable('B2B', '1')=='1') {
+								if (isset($_REQUEST['accid'])) $acvid = $_REQUEST['accid'];
+							} else {
+								if (isset($_REQUEST['ctoid'])) $acvid = $_REQUEST['ctoid'];
+							}
+							break;
 					}
 				}
 			}
