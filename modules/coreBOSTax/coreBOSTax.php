@@ -652,12 +652,12 @@ class coreBOSTax extends CRMEntity {
 	 * 		otherwise all taxes will be returned
 	 *	@param string $sh - sh or empty, if sh passed then the shipping and handling related taxes will be returned
 	 *	@param string $mode - edit or empty, if mode is edit, then it will return taxes including disabled.
-	 *	@param string $id - crmid or empty, getting crmid to get tax values..
+	 *	@param string $crmid - crmid or empty, getting crmid to get tax values..
 	 *	return array $taxtypes - return all the tax types as a array
 	 */
 	public static function getAllTaxes($available='all', $sh='', $mode='', $crmid='') {
 		global $adb, $log, $taxvalidationinfo;
-		if($mode == 'edit' && $id != '' ) {
+		if($mode == 'edit' && $crmid != '' ) {
 			if($sh != '' && $sh == 'sh') {
 				$ship = '1';
 			} else {
