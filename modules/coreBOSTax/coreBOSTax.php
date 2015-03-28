@@ -631,12 +631,11 @@ class coreBOSTax extends CRMEntity {
 	/**	function to get the product's taxpercentage
 	 *	@param string $taxname - tax name (VAT or Sales or Service)
 	 *	@param int $productid  - product/service id for which we want the tax percentage
-	 *	@param int $acvid      - account/contact/vendor id for which we want to get all the associated taxes
 	 *	@param id  $default    - ignored
 	 *	return int $taxpercentage - taxpercentage corresponding to the Tax type from vtiger_inventorytaxinfo vtiger_table
 	 */
-	public static function getProductTaxPercentage($taxname, $pdosrvid, $acvid, $default='') {
-		$taxes = self::getTaxDetailsForProduct($pdosrvid, $acvid, 'available');
+	public static function getProductTaxPercentage($taxname, $pdosrvid, $default='') {
+		$taxes = self::getTaxDetailsForProduct($pdosrvid, 0, 'available');
 		$taxp = 0;
 		foreach ($taxes as $key => $tax) {
 			if ($tax['taxname']==$taxname) {
@@ -687,6 +686,19 @@ class coreBOSTax extends CRMEntity {
 			$acvid = 0;
 			if (!empty($crmid)) { // we get the related ACV
 				$acvid = coreBOSTax::getParentACV($crmid,GlobalVariable::getVariable('B2B', '1'));
+			} else {
+				$acvid = 0;
+				if (isset($_REQUEST['return_module'])) {
+					if ($_REQUEST['return_module']=='PurchaseOrder') {
+						$acvid = $_REQUEST['vndid'];
+					} else {
+						if (GlobalVariable::getVariable('B2B', '1')=='1') {
+							$acvid = $_REQUEST['accid'];
+						} else {
+							$acvid = $_REQUEST['ctoid'];
+						}
+					}
+				}
 			}
 			$taxes = self::getTaxDetailsForProduct(0, $acvid, $available, (empty($sh) ? false : true));
 		}

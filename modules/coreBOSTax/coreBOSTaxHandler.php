@@ -34,16 +34,15 @@ class coreBOSTaxEvents extends VTEventHandler {
 		$taxvalidationinfo = array();
 		switch($handlerType) {
 			case 'corebos.filter.TaxCalculation.getTaxDetailsForProduct':
-//FIXME	$acvid = vtlib_purify($_REQUEST['acc']);
 				$pdosrvid = vtlib_purify($parameter[0]);
 				$available = vtlib_purify($parameter[1]);
-				$parameter[2] = coreBOSTax::getTaxDetailsForProduct($pdosrvid, $acvid, $available);
+				$acvid = vtlib_purify($parameter[2]);
+				$parameter[3] = coreBOSTax::getTaxDetailsForProduct($pdosrvid, $acvid, $available);
 				break;
 			case 'corebos.filter.TaxCalculation.getProductTaxPercentage':
-//FIXME	$acvid = vtlib_purify($_REQUEST['acc']);
 				$taxname = vtlib_purify($parameter[0]);
 				$pdosrvid = vtlib_purify($parameter[1]);
-				$parameter[2] = coreBOSTax::getProductTaxPercentage($taxname, $pdosrvid, $acvid);
+				$parameter[2] = coreBOSTax::getProductTaxPercentage($taxname, $pdosrvid);
 				break;
 			case 'corebos.filter.TaxCalculation.getAllTaxes':
 				$available = vtlib_purify($parameter[0]);

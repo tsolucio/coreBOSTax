@@ -51,6 +51,15 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 		if ($focus->mode == 'edit') {
 			$adb->pquery('delete from vtiger_corebostaxinventory where invid=?',array($id));
 		}
+		if ($module != 'PurchaseOrder') {
+			if (GlobalVariable::getVariable('B2B', '1')=='1') {
+				$acvid = $focus->column_fields['account_id'];
+			} else {
+				$acvid = $focus->column_fields['contact_id'];
+			}
+		} else {
+			$acvid = $focus->column_fields['vendor_id'];
+		}
 
 		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid) values (?,?,?,?,?,?,?)';
 		$lines = $adb->pquery('select * from vtiger_inventoryproductrel where id=?', array($id));
@@ -74,7 +83,7 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 			while ($line = $adb->fetch_array($lines)) {
 				$pdoid = $line['productid'];
 				$lineitemid = $line['lineitem_id'];
-				$taxes_for_product = coreBOSTax::getTaxDetailsForProduct($pdoid,'all');
+				$taxes_for_product = coreBOSTax::getTaxDetailsForProduct($pdoid,$acvid,'all',false);
 				for($tax_count=0;$tax_count<count($taxes_for_product);$tax_count++) {
 					$cbtaxid = $taxes_for_product[$tax_count]['taxid'];
 					$tax_name = $taxes_for_product[$tax_count]['taxname'];
