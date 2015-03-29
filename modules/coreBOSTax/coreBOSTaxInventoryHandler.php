@@ -48,6 +48,7 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 	function saveInventoryProductDetails($focus, $module) {
 		global $adb, $log;
 		$id = $focus->id;
+		$all_available_taxes = coreBOSTax::getAllTaxes('available','',$focus->mode,$id);
 		if ($focus->mode == 'edit') {
 			$adb->pquery('delete from vtiger_corebostaxinventory where invid=?',array($id));
 		}
@@ -64,19 +65,14 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid) values (?,?,?,?,?,?,?)';
 		$lines = $adb->pquery('select * from vtiger_inventoryproductrel where id=?', array($id));
 		if ($_REQUEST['taxtype'] == 'group') {
-			$all_available_taxes = coreBOSTax::getAllTaxes('available','','edit',$id);
-			while ($line = $adb->fetch_array($lines)) {
-				$pdoid = $line['productid'];
-				$lineitemid = $line['lineitem_id'];
-				for($tax_count=0;$tax_count<count($all_available_taxes);$tax_count++) {
-					$cbtaxid = $all_available_taxes[$tax_count]['taxid'];
-					$tax_name = $all_available_taxes[$tax_count]['taxname'];
-					$tax_val = $all_available_taxes[$tax_count]['percentage'];
-					$request_tax_name = $tax_name."_group_percentage";
-					if(isset($_REQUEST[$request_tax_name]))
-						$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
-					$adb->pquery($inssql, array($tax_name,$id,$pdoid,$tax_val,'0',$cbtaxid,$lineitemid));
-				}
+			for($tax_count=0;$tax_count<count($all_available_taxes);$tax_count++) {
+				$cbtaxid = $all_available_taxes[$tax_count]['taxid'];
+				$tax_name = $all_available_taxes[$tax_count]['taxname'];
+				$tax_val = $all_available_taxes[$tax_count]['percentage'];
+				$request_tax_name = $tax_name."_group_percentage";
+				if(isset($_REQUEST[$request_tax_name]))
+					$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
+				$adb->pquery($inssql, array($tax_name,$id,0,$tax_val,'0',$cbtaxid,0));
 			}
 		} else {
 			$i = 1;
