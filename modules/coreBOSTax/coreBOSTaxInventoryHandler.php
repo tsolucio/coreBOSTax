@@ -27,6 +27,10 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 		if($eventName == 'vtiger.entity.beforesave') {
 		}
 
+		if($eventName == 'vtiger.entity.afterdelete') {
+			// we leave this one deliberatly with no functionality so recovering from recycle bin will work
+		}
+
 		if($eventName == 'vtiger.entity.aftersave') {
 			$moduleName = $entityData->getModuleName();
 			if ($moduleName == 'Quotes' || $moduleName == 'SalesOrder' || $moduleName == 'Invoice' || $moduleName == 'PurchaseOrder') {
