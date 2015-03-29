@@ -110,7 +110,8 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 		global $adb, $log;
 		$id = $focus->id;
 		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid) ';
-		$inssql.= "select taxname,$id,pdoid,taxp,shipping,cbtaxid,lineitemid where invid=".$focus->_salesorderid;
+		$inssql.= "(select taxname,$id,pdoid,taxp,shipping,cbtaxid,lineitemid
+			FROM vtiger_corebostaxinventory where invid=".$focus->_salesorderid.')';
 		$adb->query($inssql);
 	}
 }
