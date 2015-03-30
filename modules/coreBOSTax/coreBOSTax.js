@@ -17,6 +17,20 @@
  *  Author       : JPL TSolucio, S. L.
  *************************************************************************************************/
 
+var cbtax_cbB2B = '1';
+
+new Ajax.Request(
+	'index.php',
+	{queue: {position: 'end', scope: 'command'},
+		method: 'post',
+		postBody: "action=GlobalVariableAjax&file=SearchGlobalVar&module=GlobalVariable&returnvalidation=0&gvname=B2B&gvdefault=1&gvmodule="+gVTModule,
+		onComplete: function(response) {
+			obj = JSON.parse(response);
+			cbtax_cbB2B = obj.B2B;
+		}
+	}
+);
+
 // we have to capture the whole function and replicate the functionality because it closes the window
 var aopcbTaxAccountCapture = corebosaop_meld.around(window,'saa_fillinvalues',function() {
 	var account_id = jQuery("#account_id").val();
@@ -27,7 +41,7 @@ var aopcbTaxAccountCapture = corebosaop_meld.around(window,'saa_fillinvalues',fu
 		window.opener.document.EditView.account_id.value = account_id;
 	if (jQuery('#saa_bill').is(':checked')) setReturnAddressBill();
 	if (jQuery('#saa_ship').is(':checked')) setReturnAddressShip();
-	window.opener.updateAllTaxes();
+	if (cbtax_cbB2B=='1') window.opener.updateAllTaxes();
 	window.close();
 });
 
@@ -40,7 +54,7 @@ var aopcbTaxContactCapture = corebosaop_meld.around(window,'sca_fillinvalues',fu
 		window.opener.document.EditView.contact_id.value = contact_id;
 	if (jQuery('#sca_bill').is(':checked')) setReturnAddressBill();
 	if (jQuery('#sca_ship').is(':checked')) setReturnAddressShip();
-	window.opener.updateAllTaxes();
+	if (cbtax_cbB2B=='0') window.opener.updateAllTaxes();
 	window.close();
 });
 
