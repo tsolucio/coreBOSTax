@@ -440,6 +440,8 @@ class coreBOSTax extends CRMEntity {
 			if ($taxtype) $taxtype->setRelatedList($module, $modulename, Array('ADD'),'get_dependents_list');
 			$this->setModuleSeqNumber('configure', $modulename, 'tax-', '0000001');
 			require_once('include/events/include.inc');
+			include_once('vtlib/Vtiger/Module.php');
+			$module->addLink('HEADERSCRIPT_POPUP', 'coreBOSTaxjs', 'modules/coreBOSTax/coreBOSTax.js');
 			global $adb;
 			$em = new VTEventsManager($adb);
 			$em->registerHandler('corebos.filter.TaxCalculation.getTaxDetailsForProduct', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
@@ -834,6 +836,98 @@ class coreBOSTax extends CRMEntity {
 		}
 		$relid = $adb->query_result($rspot,0,0);
 		return $relid;
+	}
+
+	public static function migrateExistingInventoryRecords() {
+		global $adb, $log, $current_user;
+		$cbtaxrec = new coreBOSTax();
+		$cbtaxrec->mode = '';
+		$cbtaxrec->column_fields['assigned_user_id'] = $current_user->id;
+		$cbtaxrec->column_fields['acvtaxtype'] = 0;
+		$cbtaxrec->column_fields['pdotaxtype'] = 0;
+		$_REQUEST['assigntype'] = 'U';
+		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid) values (?,?,?,?,?,?,?)';
+		$rstax = $adb->query('select * from vtiger_inventorytaxinfo');
+		$taxes = array();
+		while ($tax=$adb->fetch_array($rstax)) {
+			// create tax records
+			$cbtaxrec->column_fields['taxname'] = $tax['taxlabel'];
+			$cbtaxrec->column_fields['corebostaxactive'] = $tax['deleted'] == '1' ? '0' : '1';
+			$cbtaxrec->column_fields['taxp'] = $tax['percentage'];
+			$cbtaxrec->column_fields['shipping'] = 0;
+			$cbtaxrec->save('coreBOSTax');
+			$taxes[$tax['taxname']] = array('label'=>$tax['taxlabel'],'taxid'=>$cbtaxrec->id);
+		}
+		$result = $adb->query('SELECT vtiger_inventoryproductrel.*,coalesce(vtiger_salesorder.taxtype,vtiger_invoice.taxtype,vtiger_quotes.taxtype,vtiger_purchaseorder.taxtype) as taxtype
+			FROM `vtiger_inventoryproductrel`
+			left join vtiger_salesorder on salesorderid=id
+			left join vtiger_invoice on invoiceid=id
+			left join vtiger_quotes on vtiger_quotes.quoteid=id
+			left join vtiger_purchaseorder on purchaseorderid=id
+			order by id');
+		$curinvid = 0;
+		while ($invline = $adb->fetch_array($result)) {
+			if ($curinvid!=$invline['id']) {
+				$firstline = true;
+				$curinvid = $invline['id'];
+			}
+			if ($invline['taxtype']=='group') {
+				if ($firstline) {
+					foreach ($taxes as $taxn => $taxid) {
+						$params = array();
+						$params[] = $taxes[$taxn]['label'];
+						$params[] = $invline['id'];
+						$params[] = 0;
+						$params[] = $invline[$taxn];
+						$params[] = 0;
+						$params[] = $taxes[$taxn]['taxid'];
+						$params[] = $invline['lineitem_id'];
+						$adb->pquery($inssql, $params);
+					}
+				}
+				$firstline = false;
+				continue;
+			}
+			if ($invline['taxtype']=='individual') {
+				foreach ($taxes as $taxn => $taxid) {
+					$params = array();
+					$params[] = $taxes[$taxn]['label'];
+					$params[] = $invline['id'];
+					$params[] = $invline['productid'];
+					$params[] = $invline[$taxn];
+					$params[] = 0;
+					$params[] = $taxes[$taxn]['taxid'];
+					$params[] = $invline['lineitem_id'];
+					$adb->pquery($inssql, $params);
+				}
+			}
+		}
+		// shipping
+		$rstax = $adb->query('select * from vtiger_shippingtaxinfo');
+		$taxes = array();
+		while ($tax=$adb->fetch_array($rstax)) {
+			// create tax records
+			$cbtaxrec->column_fields['taxname'] = $tax['taxlabel'];
+			$cbtaxrec->column_fields['corebostaxactive'] = $tax['deleted'] == '1' ? '0' : '1';
+			$cbtaxrec->column_fields['taxp'] = $tax['percentage'];
+			$cbtaxrec->column_fields['shipping'] = 1;
+			$cbtaxrec->save('coreBOSTax');
+			$taxes[$tax['taxname']] = array('label'=>$tax['taxlabel'],'taxid'=>$cbtaxrec->id);
+		}
+		$result = $adb->query('SELECT * FROM `vtiger_inventoryshippingrel` order by id');
+		while ($invline = $adb->fetch_array($result)) {
+			foreach ($taxes as $taxn => $taxdetail) {
+				$params = array();
+				$params[] = $taxdetail['label'];
+				$params[] = $invline['id'];
+				$params[] = 0;
+				$params[] = $invline[$taxn];
+				$params[] = 1;
+				$params[] = $taxdetail['taxid'];
+				$params[] = 0;
+				$adb->pquery($inssql, $params);
+			}
+		}
 	}
 
 }
