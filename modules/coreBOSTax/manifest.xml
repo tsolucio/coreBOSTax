@@ -87,7 +87,7 @@
 <quickcreatesequence>0</quickcreatesequence>
 <displaytype>1</displaytype>
 <info_type>BAS</info_type>
-<helpinfo><![CDATA[]]></helpinfo>
+<helpinfo><![CDATA[notaxnumname]]></helpinfo>
 <masseditable>1</masseditable>
 <entityidentifier>
 <entityidfield>corebostaxid</entityidfield>

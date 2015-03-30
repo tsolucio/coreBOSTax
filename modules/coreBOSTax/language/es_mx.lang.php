@@ -24,6 +24,7 @@ $mod_strings = Array(
 	'Test' => 'Validación',
 	'Available' => 'Disponible',
 	'Shipping' => 'Impuesto de Envíos',
+	'notaxnumname' => 'nombres del tipo tax{num} no están permitdos, por ejemplo: tax1 o tax9',
 );
 
 ?>
