@@ -103,7 +103,7 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 			$tax_name = $sh_tax_details[$i]['taxname'];
 			$cbtaxid = $sh_tax_details[$i]['taxid'];
 			$tax_val = $sh_tax_details[$i]['percentage'];
-			$request_tax_name = $tax_name.'_sh_percentage'.$i;
+			$request_tax_name = $tax_name.'_sh_percent';
 			if(isset($_REQUEST[$request_tax_name]))
 				$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
 			$adb->pquery($inssql, array($tax_name,$id,0,$tax_val,'1',$cbtaxid,0));
