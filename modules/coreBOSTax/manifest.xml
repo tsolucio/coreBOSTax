@@ -247,14 +247,14 @@
 <columnname>shipping</columnname>
 <tablename>vtiger_corebostax</tablename>
 <generatedtype>1</generatedtype>
-<fieldlabel>shipping</fieldlabel>
+<fieldlabel>Shipping</fieldlabel>
 <readonly>1</readonly>
 <presence>0</presence>
 <selected>0</selected>
 <sequence>9</sequence>
 <maximumlength>3</maximumlength>
 <typeofdata>C~O</typeofdata>
-<defaultvalue>1</defaultvalue>
+<defaultvalue>0</defaultvalue>
 <quickcreate>0</quickcreate>
 <quickcreatesequence>0</quickcreatesequence>
 <displaytype>1</displaytype>
