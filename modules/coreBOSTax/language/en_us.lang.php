@@ -24,7 +24,7 @@ $mod_strings = Array(
 	'Test' => 'Test',
 	'Available' => 'Available',
 	'Shipping' => 'Shipping',
-	'notaxnumname' => 'tax{num} names are not allowed, for example: tax1 or tax9',
+	'notaxnumname' => 'must be unique and tax{num} names are not allowed, for example: tax1 or tax9',
 );
 
 ?>
