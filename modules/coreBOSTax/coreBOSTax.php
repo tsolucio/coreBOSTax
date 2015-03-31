@@ -854,7 +854,7 @@ class coreBOSTax extends CRMEntity {
 			$cbtaxrec->column_fields['taxname'] = $tax['taxlabel'];
 			$cbtaxrec->column_fields['corebostaxactive'] = $tax['deleted'] == '1' ? '0' : '1';
 			$cbtaxrec->column_fields['taxp'] = $tax['percentage'];
-			$cbtaxrec->column_fields['shipping'] = 0;
+			$cbtaxrec->column_fields['shipping'] = '0';
 			$cbtaxrec->save('coreBOSTax');
 			$taxes[$tax['taxname']] = array('label'=>$tax['taxlabel'],'taxid'=>$cbtaxrec->id);
 		}
@@ -910,7 +910,7 @@ class coreBOSTax extends CRMEntity {
 			$cbtaxrec->column_fields['taxname'] = $tax['taxlabel'];
 			$cbtaxrec->column_fields['corebostaxactive'] = $tax['deleted'] == '1' ? '0' : '1';
 			$cbtaxrec->column_fields['taxp'] = $tax['percentage'];
-			$cbtaxrec->column_fields['shipping'] = 1;
+			$cbtaxrec->column_fields['shipping'] = '1';
 			$cbtaxrec->save('coreBOSTax');
 			$taxes[$tax['taxname']] = array('label'=>$tax['taxlabel'],'taxid'=>$cbtaxrec->id);
 		}
