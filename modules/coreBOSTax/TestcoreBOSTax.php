@@ -56,7 +56,7 @@
 <table width="98%" align="center" border="0" cellspacing="0" cellpadding="0" class="small">
 <tbody><tr><td style="height:2px"></td></tr>
 <tr>
-	<td nowrap="" class="moduleName" style="padding-left:36px;padding-right:50px;height:32px;background: url(modules/coreBOSTax/coreBOSTax.png) left center no-repeat;"><?php echo getTranslatedString('coreBOSTax','coreBOSTax').'&nbsp;-&nbsp;'.getTranslatedString('Test','coreBOSTax');?></td>
+	<td nowrap="" class="moduleName" style="padding-left:36px;padding-right:50px;height:32px;background: url(modules/coreBOSTax/coreBOSTax.png) left center no-repeat;"><a href="index.php?module=coreBOSTax&action=index"><?php echo getTranslatedString('coreBOSTax','coreBOSTax').'&nbsp;-&nbsp;'.getTranslatedString('Test','coreBOSTax');?></a></td>
 </tr>
 <tr><td style="height:2px"></td></tr>
 </tbody></table>
