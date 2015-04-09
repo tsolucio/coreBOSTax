@@ -73,7 +73,7 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 				$cbtaxid = $all_available_taxes[$tax_count]['taxid'];
 				$tax_name = $all_available_taxes[$tax_count]['taxname'];
 				$tax_val = $all_available_taxes[$tax_count]['percentage'];
-				$request_tax_name = $tax_name."_group_percentage";
+				$request_tax_name = str_replace(' ', '_', $tax_name)."_group_percentage";
 				if(isset($_REQUEST[$request_tax_name]))
 					$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
 				$adb->pquery($inssql, array($tax_name,$id,0,$tax_val,'0',$cbtaxid,0));
@@ -88,7 +88,7 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 					$cbtaxid = $taxes_for_product[$tax_count]['taxid'];
 					$tax_name = $taxes_for_product[$tax_count]['taxname'];
 					$tax_val = $taxes_for_product[$tax_count]['percentage'];
-					$request_tax_name = $tax_name."_percentage".$i;
+					$request_tax_name = str_replace(' ', '_', $tax_name)."_percentage".$i;
 					if(isset($_REQUEST[$request_tax_name]))
 						$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
 					$adb->pquery($inssql, array($tax_name,$id,$pdoid,$tax_val,'0',$cbtaxid,$lineitemid));
@@ -103,7 +103,7 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 			$tax_name = $sh_tax_details[$i]['taxname'];
 			$cbtaxid = $sh_tax_details[$i]['taxid'];
 			$tax_val = $sh_tax_details[$i]['percentage'];
-			$request_tax_name = $tax_name.'_sh_percent';
+			$request_tax_name = str_replace(' ', '_', $tax_name).'_sh_percent';
 			if(isset($_REQUEST[$request_tax_name]))
 				$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
 			$adb->pquery($inssql, array($tax_name,$id,0,$tax_val,'1',$cbtaxid,0));
