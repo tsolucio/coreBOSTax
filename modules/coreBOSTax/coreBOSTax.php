@@ -617,13 +617,14 @@ class coreBOSTax extends CRMEntity {
 			$tax_details = array();
 			$tax_details['productid'] = $pdosrvid;
 			$tax_details['taxid'] = $tax['taxid'];
-			$tax_details['taxname'] = $tax['taxname'];
-			$tax_details['taxlabel'] = $tax['taxname'];
+			$tname = html_entity_decode($tax['taxname'],ENT_QUOTES);
+			$tax_details['taxname'] = $tname;
+			$tax_details['taxlabel'] = $tname;
 			$tax_details['percentage'] = $tax['taxpercentage'];
 			$tax_details['deleted'] = $tax['deleted'];
 			$taxes[$i] = $tax_details;
 			$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['taxid'].'">';
-			$taxfound.= $tax['taxname'].'</a> '.$tax['taxpercentage'];
+			$taxfound.= $tname.'</a> '.$tax['taxpercentage'];
 			$taxvalidationinfo[] = "<b>Tax found: $taxfound</b>";
 			$i++;
 		}
@@ -674,13 +675,14 @@ class coreBOSTax extends CRMEntity {
 				$tax_details = array();
 				$tax_details['productid'] = $tax['pdoid'];
 				$tax_details['taxid'] = $tax['cbtaxid'];
-				$tax_details['taxname'] = $tax['taxname'];
-				$tax_details['taxlabel'] = $tax['taxname'];
+				$tname = html_entity_decode($tax['taxname'],ENT_QUOTES);
+				$tax_details['taxname'] = $tname;
+				$tax_details['taxlabel'] = $tname;
 				$tax_details['percentage'] = $tax['taxp'];
 				$tax_details['deleted'] = (empty($tax['deleted']) or $tax['deleted']=='1') ? '1' : '0';
 				$taxes[$i] = $tax_details;
 				$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['cbtaxid'].'">';
-				$taxfound.= $tax['taxname'].'</a> '.$tax['taxp'];
+				$taxfound.= $tname.'</a> '.$tax['taxp'];
 				$taxvalidationinfo[] = "<b>getAllTaxes found: $taxfound</b>";
 				$i++;
 			}
