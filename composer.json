@@ -1,0 +1,28 @@
+{
+	"name": "tsolucio/coreBOSTax",
+	"type": "corebos-module",
+	"properties": {
+		"name": "coreBOS Tax",
+		"description": "Tax module that saves different tax percentages for advanced tax management in coreBOS.",
+		"keywords": ["tax","impuesto","VAT","IVA","TVA"],
+		"homepage": "http://corebos.org/documentation/doku.php?id=en:extensions:extensions:coreBOSTax",
+		"version": "1.0",
+		"time": "2015-01-14",
+		"license": "Vizsage",
+		"extra": {
+			"price": "0",
+			"distribution": "Free",
+		},
+		"authors": [
+					{
+					"name": "JPL TSolucio, S.L.",
+					"email": "info(at)tsolucio(dot)com"
+					}
+		"support": {
+				"email": "info(at)tsolucio(dot)com",
+				"issues": "https://github.com/tsolucio/coreBOSTax",
+				"forum": "http://discussions.corebos.org/",
+				"source": "https://github.com/tsolucio/coreBOSTax"
+		}
+	}
+}
