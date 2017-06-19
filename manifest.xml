@@ -32,7 +32,7 @@
 <table>
 <name>vtiger_corebostax</name>
 <sql><![CDATA[CREATE TABLE `vtiger_corebostax` (
-  `corebostaxid` int(11) default NULL,
+  `corebostaxid` int(11) NOT NULL,
   `taxname` varchar(100) NOT NULL,
   `corebostaxactive` varchar(3) default NULL,
   `acvtaxtype` int(11) default NULL,
