@@ -369,7 +369,7 @@ class coreBOSTax extends CRMEntity {
 		} else {
 			$acvid = 0;
 			if (!empty($crmid)) { // we get the related ACV
-				$acvid = coreBOSTax::getParentACV($crmid,GlobalVariable::getVariable('B2B', '1'));
+				$acvid = coreBOSTax::getParentACV($crmid,GlobalVariable::getVariable('Application_B2B', '1'));
 			} else {
 				$acvid = 0;
 				if (!empty($_REQUEST['return_module'])) {
@@ -402,7 +402,7 @@ class coreBOSTax extends CRMEntity {
 							if (isset($_REQUEST['vndid'])) $acvid = $_REQUEST['vndid'];
 							break;
 						default: // Quotes, SalesOrder and Invoice
-							if (GlobalVariable::getVariable('B2B', '1')=='1') {
+							if (GlobalVariable::getVariable('Application_B2B', '1')=='1') {
 								if (isset($_REQUEST['accid'])) $acvid = $_REQUEST['accid'];
 							} else {
 								if (isset($_REQUEST['ctoid'])) $acvid = $_REQUEST['ctoid'];
@@ -421,7 +421,7 @@ class coreBOSTax extends CRMEntity {
 	 *	return int $taxpercentage - taxpercentage corresponding to the Tax type
 	 */
 	public static function getTaxPercentage($taxname) {
-		$taxes = self::getTaxDetailsForProduct(0, 0, $available);
+		$taxes = self::getTaxDetailsForProduct(0, 0);
 		$taxp = 0;
 		foreach ($taxes as $key => $tax) {
 			if ($tax['taxname']==$taxname) {
@@ -437,7 +437,7 @@ class coreBOSTax extends CRMEntity {
 	 *	return int   $taxid    - taxid corresponding to the Tax type
 	 */
 	public static function getTaxId($taxname) {
-		$taxes = self::getTaxDetailsForProduct(0, 0, $available);
+		$taxes = self::getTaxDetailsForProduct(0, 0);
 		$taxid = 0;
 		foreach ($taxes as $key => $tax) {
 			if ($tax['taxname']==$taxname) {

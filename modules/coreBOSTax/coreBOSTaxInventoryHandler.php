@@ -39,9 +39,7 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 					// We are getting called from the RecurringInvoice cron service!
 					$this->createRecurringInvoiceFromSO($focus);
 				} else if(isset($_REQUEST)) {
-					if(substr($_REQUEST['action'],-4) != 'Ajax' && $_REQUEST['ajxaction'] != 'DETAILVIEW'
-						&& $_REQUEST['action'] != 'MassEditSave' && $_REQUEST['action'] != 'ProcessDuplicates')
-					{
+					if (inventoryCanSaveProductLines($_REQUEST,$moduleName)) {
 						$this->saveInventoryProductDetails($focus, $moduleName);
 					}
 				}
@@ -57,7 +55,7 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 			$adb->pquery('delete from vtiger_corebostaxinventory where invid=?',array($id));
 		}
 		if ($module != 'PurchaseOrder') {
-			if (GlobalVariable::getVariable('B2B', '1')=='1') {
+			if (GlobalVariable::getVariable('Application_B2B', '1')=='1') {
 				$acvid = $focus->column_fields['account_id'];
 			} else {
 				$acvid = $focus->column_fields['contact_id'];
