@@ -8,7 +8,7 @@
  * All Rights Reserved.
  ************************************************************************************/
 
-$mod_strings = Array(
+$mod_strings = array(
 	'coreBOSTax' => 'Impuestos',
 	'SINGLE_coreBOSTax' => 'Impuesto',
 	'coreBOSTax ID' => 'ID Impuesto',
@@ -26,5 +26,4 @@ $mod_strings = Array(
 	'Shipping' => 'Impuesto de Envíos',
 	'notaxnumname' => 'no puede repetirse y nombres del tipo tax{num} no están permitdos, por ejemplo: tax1 o tax9',
 );
-
 ?>
