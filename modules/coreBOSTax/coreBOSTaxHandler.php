@@ -32,7 +32,7 @@ class coreBOSTaxEvents extends VTEventHandler {
 		require_once 'modules/coreBOSTax/coreBOSTax.php';
 		global $taxvalidationinfo;
 		$taxvalidationinfo = array();
-		switch($handlerType) {
+		switch ($handlerType) {
 			case 'corebos.filter.TaxCalculation.getTaxDetailsForProduct':
 				$pdosrvid = vtlib_purify($parameter[0]);
 				$available = vtlib_purify($parameter[1]);

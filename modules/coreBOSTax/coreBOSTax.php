@@ -12,8 +12,6 @@ require_once 'data/Tracker.php';
 
 class coreBOSTax extends CRMEntity {
 	public $db;
-	public $log;
-
 
 	public $table_name = 'vtiger_corebostax';
 	public $table_index= 'corebostaxid';
@@ -40,7 +38,8 @@ class coreBOSTax extends CRMEntity {
 	public $tab_name_index = array(
 		'vtiger_crmentity' => 'crmid',
 		'vtiger_corebostax'   => 'corebostaxid',
-		'vtiger_corebostaxcf' => 'corebostaxid');
+		'vtiger_corebostaxcf' => 'corebostaxid',
+	);
 
 	/**
 	 * Mandatory for Listing (Related listview)
@@ -121,10 +120,12 @@ class coreBOSTax extends CRMEntity {
 			// Handle post installation actions
 			$taxtype=Vtiger_Module::getInstance('cbTaxType');
 			$module=Vtiger_Module::getInstance('coreBOSTax');
-			if ($taxtype) $taxtype->setRelatedList($module, $modulename, array('ADD'),'get_dependents_list');
+			if ($taxtype) {
+				$taxtype->setRelatedList($module, $modulename, array('ADD'), 'get_dependents_list');
+			}
 			$this->setModuleSeqNumber('configure', $modulename, 'tax-', '0000001');
-			require_once('include/events/include.inc');
-			include_once('vtlib/Vtiger/Module.php');
+			require_once 'include/events/include.inc';
+			include_once 'vtlib/Vtiger/Module.php';
 			$module->addLink('HEADERSCRIPT_POPUP', 'coreBOSTaxjs', 'modules/coreBOSTax/coreBOSTax.js');
 			global $adb;
 			$em = new VTEventsManager($adb);
@@ -176,16 +177,16 @@ class coreBOSTax extends CRMEntity {
 	 */
 	//public function get_dependents_list($id, $cur_tab_id, $rel_tab_id, $actions=false) { }
 
-	/**	Function used to get all the tax details which are associated to the given product
-	 *	@param int $productid - product/service id for which we want to get all the associated taxes
-	 *	@param int $acvid - account/contact/vendor id for which we want to get all the associated taxes
-	 *	@param string $available - available, available_associated or all. default is all
+	/** Function used to get all the tax details which are associated to the given product
+	 * @param int $productid - product/service id for which we want to get all the associated taxes
+	 * @param int $acvid - account/contact/vendor id for which we want to get all the associated taxes
+	 * @param string $available - available, available_associated or all. default is all
 	 *    if available then the taxes which are available now will be returned,
 	 *    if all then all taxes will be returned
 	 *    if available_associated then all the associated taxes even if they are not available and all the available taxes will be retruned
-	 *	@return array $tax_details - tax details as a array with productid, taxid, taxname, percentage and deleted
+	 * @return array $tax_details - tax details as a array with productid, taxid, taxname, percentage and deleted
 	 */
-	public static function getTaxDetailsForProduct($pdosrvid, $acvid, $available='all',$shipping=false) {
+	public static function getTaxDetailsForProduct($pdosrvid, $acvid, $available = 'all', $shipping = false) {
 		global $adb, $taxvalidationinfo;
 		if (!empty($acvid)) {
 			$seacvid = getSalesEntityType($acvid);
@@ -193,23 +194,29 @@ class coreBOSTax extends CRMEntity {
 			switch ($seacvid) {
 				case 'Accounts':
 					$ttrs = $adb->pquery('select taxtypeid from vtiger_account where accountid=?', array($acvid));
-					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
+					if ($ttrs) {
+						$acvttype = $adb->query_result($ttrs, 0, 0);
+					}
 					$taxvalidationinfo[] = 'Related Account found';
 					break;
 				case 'Contacts':
 					$ttrs = $adb->pquery('select taxtypeid from vtiger_contactdetails where contactid=?', array($acvid));
-					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
+					if ($ttrs) {
+						$acvttype = $adb->query_result($ttrs, 0, 0);
+					}
 					$taxvalidationinfo[] = 'Related Contact found';
 					break;
 				case 'Vendors':
 					$ttrs = $adb->pquery('select taxtypeid from vtiger_vendor where vendorid=?', array($acvid));
-					if ($ttrs) $acvttype = $adb->query_result($ttrs, 0, 0);
+					if ($ttrs) {
+						$acvttype = $adb->query_result($ttrs, 0, 0);
+					}
 					$taxvalidationinfo[] = 'Related Vendor found';
 					break;
 			}
-			if (empty($acvttype))
+			if (empty($acvttype)) {
 				$taxvalidationinfo[] = 'Entity tax type not found.';
-			else {
+			} else {
 				$taxvalidationinfo[] = 'Entity tax type found: <a href="index.php?module=cbTaxType&action=DetailView&record='.$acvttype.'">'.$acvttype.'</a>';
 			}
 		} else {
@@ -221,18 +228,22 @@ class coreBOSTax extends CRMEntity {
 			switch ($sepdosrvid) {
 				case 'Products':
 					$ttrs = $adb->pquery('select taxtypeid from vtiger_products where productid=?', array($pdosrvid));
-					if ($ttrs) $psttype = $adb->query_result($ttrs, 0, 0);
+					if ($ttrs) {
+						$psttype = $adb->query_result($ttrs, 0, 0);
+					}
 					$taxvalidationinfo[] = 'Related Products found';
 					break;
 				case 'Services':
 					$ttrs = $adb->pquery('select taxtypeid from vtiger_service where serviceid=?', array($pdosrvid));
-					if ($ttrs) $psttype = $adb->query_result($ttrs, 0, 0);
+					if ($ttrs) {
+						$psttype = $adb->query_result($ttrs, 0, 0);
+					}
 					$taxvalidationinfo[] = 'Related Services found';
 					break;
 			}
-			if (empty($psttype))
+			if (empty($psttype)) {
 				$taxvalidationinfo[] = 'Product/Service tax type not found.';
-			else {
+			} else {
 				$taxvalidationinfo[] = 'Product/Service tax type found: <a href="index.php?module=cbTaxType&action=DetailView&record='.$psttype.'">'.$psttype.'</a>';
 			}
 		} else {
@@ -259,7 +270,7 @@ class coreBOSTax extends CRMEntity {
 				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype = '$psttype')) ";
 			}
 		}
-		if($available != 'all') {
+		if ($available != 'all') {
 			$where .= " and deleted=0 and corebostaxactive='1' ";
 		}
 		$where .= " and shipping='".($shipping ? '1' : '0')."' ";
@@ -267,10 +278,10 @@ class coreBOSTax extends CRMEntity {
 		$taxrs = $adb->query($sql.$where);
 		if ($adb->num_rows($taxrs)==0) {
 			$taxvalidationinfo[] = 'no taxes found > we insist';
-			if (!empty($acvttype) and !empty($psttype)) {
+			if (!empty($acvttype) && !empty($psttype)) {
 				$taxvalidationinfo[] = 'taxes of ACV(TxTy) and empty(PdoSrv(TxTy))';
 				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype is null or pdotaxtype = 0)) ";
-				if($available != 'all') {
+				if ($available != 'all') {
 					$where .= " and deleted=0 and corebostaxactive='1' ";
 				}
 				$where .= " and shipping='".($shipping ? '1' : '0')."' ";
@@ -279,7 +290,7 @@ class coreBOSTax extends CRMEntity {
 				if ($adb->num_rows($taxrs)==0) {
 					$taxvalidationinfo[] = 'taxes of empty(ACV(TxTy)) and PdoSrv(TxTy)';
 					$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype = '$psttype')) ";
-					if($available != 'all') {
+					if ($available != 'all') {
 						$where .= " and deleted=0 and corebostaxactive='1' ";
 					}
 					$where .= " and shipping='".($shipping ? '1' : '0')."' ";
@@ -288,7 +299,7 @@ class coreBOSTax extends CRMEntity {
 				}
 			}
 		}
-		if ($adb->num_rows($taxrs)==0 and $available=='all') {
+		if ($adb->num_rows($taxrs)==0 && $available=='all') {
 			$taxvalidationinfo[] = 'all non-related taxes';
 			$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype is null or pdotaxtype = 0)) ";
 			$where .= " and deleted=0 and corebostaxactive='1' and shipping='".($shipping ? '1' : '0')."' ";
@@ -301,7 +312,7 @@ class coreBOSTax extends CRMEntity {
 			$tax_details = array();
 			$tax_details['productid'] = $pdosrvid;
 			$tax_details['taxid'] = $tax['taxid'];
-			$tname = html_entity_decode($tax['taxname'],ENT_QUOTES);
+			$tname = html_entity_decode($tax['taxname'], ENT_QUOTES);
 			$tax_details['taxname'] = $tname;
 			$tax_details['taxlabel'] = $tname;
 			$tax_details['percentage'] = $tax['taxpercentage'];
@@ -321,10 +332,10 @@ class coreBOSTax extends CRMEntity {
 	 *	@param id  $default    - ignored
 	 *	return int $taxpercentage - taxpercentage corresponding to the Tax type from vtiger_inventorytaxinfo vtiger_table
 	 */
-	public static function getProductTaxPercentage($taxname, $pdosrvid, $default='') {
+	public static function getProductTaxPercentage($taxname, $pdosrvid, $default = '') {
 		$taxes = self::getTaxDetailsForProduct($pdosrvid, 0, 'available');
 		$taxp = 0;
-		foreach ($taxes as $key => $tax) {
+		foreach ($taxes as $tax) {
 			if ($tax['taxname']==$taxname) {
 				$taxp = $tax['percentage'];
 				break;
@@ -342,28 +353,28 @@ class coreBOSTax extends CRMEntity {
 	 *	@param string $crmid - crmid or empty, getting crmid to get tax values..
 	 *	return array $taxtypes - return all the tax types as a array
 	 */
-	public static function getAllTaxes($available='all', $sh='', $mode='', $crmid='') {
-		global $adb, $log, $taxvalidationinfo;
-		if($mode == 'edit' && $crmid != '' ) {
-			if($sh != '' && $sh == 'sh') {
+	public static function getAllTaxes($available = 'all', $sh = '', $mode = '', $crmid = '') {
+		global $adb, $taxvalidationinfo;
+		if ($mode == 'edit' && $crmid != '') {
+			if ($sh != '' && $sh == 'sh') {
 				$ship = '1';
 			} else {
 				$ship = '0';
 			}
 			$res = $adb->pquery("select * from vtiger_corebostaxinventory
 			 left join vtiger_crmentity on crmid = cbtaxid
-			 where invid=? and shipping=?",array($crmid,$ship));
+			 where invid=? and shipping=?", array($crmid,$ship));
 			$taxes = array();
 			$i = 0;
 			while ($tax=$adb->fetch_array($res)) {
 				$tax_details = array();
 				$tax_details['productid'] = $tax['pdoid'];
 				$tax_details['taxid'] = $tax['cbtaxid'];
-				$tname = html_entity_decode($tax['taxname'],ENT_QUOTES);
+				$tname = html_entity_decode($tax['taxname'], ENT_QUOTES);
 				$tax_details['taxname'] = $tname;
 				$tax_details['taxlabel'] = $tname;
 				$tax_details['percentage'] = $tax['taxp'];
-				$tax_details['deleted'] = (empty($tax['deleted']) or $tax['deleted']=='1') ? '1' : '0';
+				$tax_details['deleted'] = (empty($tax['deleted']) || $tax['deleted']=='1') ? '1' : '0';
 				$taxes[$i] = $tax_details;
 				$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['cbtaxid'].'">';
 				$taxfound.= $tname.'</a> '.$tax['taxp'];
@@ -373,7 +384,7 @@ class coreBOSTax extends CRMEntity {
 		} else {
 			$acvid = 0;
 			if (!empty($crmid)) { // we get the related ACV
-				$acvid = coreBOSTax::getParentACV($crmid,GlobalVariable::getVariable('Application_B2B', '1'));
+				$acvid = coreBOSTax::getParentACV($crmid, GlobalVariable::getVariable('Application_B2B', '1'));
 			} else {
 				$acvid = 0;
 				if (!empty($_REQUEST['return_module'])) {
@@ -382,34 +393,40 @@ class coreBOSTax extends CRMEntity {
 				if (isset($_REQUEST['invmod'])) {
 					switch ($_REQUEST['invmod']) {
 						case 'Vendors':
-							if (isset($_REQUEST['return_id']))
+							if (isset($_REQUEST['return_id'])) {
 								$acvid = $_REQUEST['return_id'];
-							elseif (isset($_REQUEST['vndid'])) {
+							} elseif (isset($_REQUEST['vndid'])) {
 								$acvid = $_REQUEST['vndid'];
 							}
 							break;
 						case 'Accounts':
-							if (isset($_REQUEST['return_id']))
+							if (isset($_REQUEST['return_id'])) {
 								$acvid = $_REQUEST['return_id'];
-							elseif (isset($_REQUEST['accid'])) {
+							} elseif (isset($_REQUEST['accid'])) {
 								$acvid = $_REQUEST['accid'];
 							}
 							break;
 						case 'Contacts':
-							if (isset($_REQUEST['return_id']))
+							if (isset($_REQUEST['return_id'])) {
 								$acvid = $_REQUEST['return_id'];
-							elseif (isset($_REQUEST['ctoid'])) {
+							} elseif (isset($_REQUEST['ctoid'])) {
 								$acvid = $_REQUEST['ctoid'];
 							}
 							break;
 						case 'PurchaseOrder':
-							if (isset($_REQUEST['vndid'])) $acvid = $_REQUEST['vndid'];
+							if (isset($_REQUEST['vndid'])) {
+								$acvid = $_REQUEST['vndid'];
+							}
 							break;
 						default: // Quotes, SalesOrder and Invoice
 							if (GlobalVariable::getVariable('Application_B2B', '1')=='1') {
-								if (isset($_REQUEST['accid'])) $acvid = $_REQUEST['accid'];
+								if (isset($_REQUEST['accid'])) {
+									$acvid = $_REQUEST['accid'];
+								}
 							} else {
-								if (isset($_REQUEST['ctoid'])) $acvid = $_REQUEST['ctoid'];
+								if (isset($_REQUEST['ctoid'])) {
+									$acvid = $_REQUEST['ctoid'];
+								}
 							}
 							break;
 					}
@@ -427,7 +444,7 @@ class coreBOSTax extends CRMEntity {
 	public static function getTaxPercentage($taxname) {
 		$taxes = self::getTaxDetailsForProduct(0, 0);
 		$taxp = 0;
-		foreach ($taxes as $key => $tax) {
+		foreach ($taxes as $tax) {
 			if ($tax['taxname']==$taxname) {
 				$taxp = $tax['percentage'];
 				break;
@@ -443,7 +460,7 @@ class coreBOSTax extends CRMEntity {
 	public static function getTaxId($taxname) {
 		$taxes = self::getTaxDetailsForProduct(0, 0);
 		$taxid = 0;
-		foreach ($taxes as $key => $tax) {
+		foreach ($taxes as $tax) {
 			if ($tax['taxname']==$taxname) {
 				$taxid = $tax['taxid'];
 				break;
@@ -459,73 +476,80 @@ class coreBOSTax extends CRMEntity {
 	 *	@return float $taxvalue - tax value
 	 */
 	public static function getInventoryProductTaxValue($id, $productid, $taxname) {
-		global $log, $adb;
-		$res = $adb->pquery("select taxp from vtiger_corebostaxinventory where invid=? and pdoid=? and taxname=? and shipping='0'",
-			array($id, $productid,$taxname));
-		if ($res and $adb->num_rows($res)>0)
-			$taxvalue = $adb->query_result($res,0,'taxp');
-		else
+		global $adb;
+		$res = $adb->pquery(
+			"select taxp from vtiger_corebostaxinventory where invid=? and pdoid=? and taxname=? and shipping='0'",
+			array($id, $productid,$taxname)
+		);
+		if ($res && $adb->num_rows($res)>0) {
+			$taxvalue = $adb->query_result($res, 0, 'taxp');
+		} else {
 			$taxvalue = '0.00';
+		}
 		return $taxvalue;
 	}
-	
+
 	/**	function used to get the shipping & handling tax percentage for the given inventory id and taxname
 	 *	@param int $id - entity id which will be PO/SO/Quotes or Invoice id
 	 *	@param string $taxname - shipping and handling taxname
 	 *	@return float $taxpercentage - shipping and handling taxpercentage which is associated with the given entity
 	 */
 	public static function getInventorySHTaxPercent($id, $taxname) {
-		global $log, $adb;
-		$res = $adb->pquery("select taxp from vtiger_corebostaxinventory where invid=? and taxname=? and shipping='1'",
-			array($id,$taxname));
-		if ($res and $adb->num_rows($res)>0)
-			$taxpercentage = $adb->query_result($res,0,'taxp');
-		else
+		global $adb;
+		$res = $adb->pquery(
+			"select taxp from vtiger_corebostaxinventory where invid=? and taxname=? and shipping='1'",
+			array($id,$taxname)
+		);
+		if ($res && $adb->num_rows($res)>0) {
+			$taxpercentage = $adb->query_result($res, 0, 'taxp');
+		} else {
 			$taxpercentage = '0.00';
+		}
 		return $taxpercentage;
 	}
 
-	public static function getParentACV($crmid,$b2b='1') {
+	public static function getParentACV($crmid, $b2b = '1') {
 		global $adb, $log;
 		$secrm = getSalesEntityType($crmid);
 		switch ($secrm) {
-		case 'Quotes':
-			if ($b2b=='1')
-				$rspot = $adb->pquery('select accountid from vtiger_quotes where quoteid=?',array($crmid));
-			else
-				$rspot = $adb->pquery('select contactid from vtiger_quotes where quoteid=?',array($crmid));
+			case 'Quotes':
+				if ($b2b=='1') {
+					$rspot = $adb->pquery('select accountid from vtiger_quotes where quoteid=?', array($crmid));
+				} else {
+					$rspot = $adb->pquery('select contactid from vtiger_quotes where quoteid=?', array($crmid));
+				}
+				break;
+			case 'SalesOrder':
+				if ($b2b=='1') {
+					$rspot = $adb->pquery('select accountid from vtiger_salesorder where salesorderid=?', array($crmid));
+				} else {
+					$rspot = $adb->pquery('select contactid from vtiger_salesorder where salesorderid=?', array($crmid));
+				}
+				break;
+			case 'Invoice':
+				if ($b2b=='1') {
+					$rspot = $adb->pquery('select accountid from vtiger_invoice where invoiceid=?', array($crmid));
+				} else {
+					$rspot = $adb->pquery('select contactid from vtiger_invoice where invoiceid=?', array($crmid));
+				}
+				break;
+			case 'PurchaseOrder':
+				$rspot = $adb->pquery('SELECT vendorid FROM vtiger_purchaseorder WHERE purchaseorderid=?', array($crmid));
+				break;
+			case 'Products':
+			case 'Services':
+				return 0;
 			break;
-		case 'SalesOrder':
-			if ($b2b=='1')
-				$rspot = $adb->pquery('select accountid from vtiger_salesorder where salesorderid=?',array($crmid));
-			else {
-				$rspot = $adb->pquery('select contactid from vtiger_salesorder where salesorderid=?',array($crmid));
-			}
-			break;
-		case 'Invoice':
-			if ($b2b=='1')
-				$rspot = $adb->pquery('select accountid from vtiger_invoice where invoiceid=?',array($crmid));
-			else {
-				$rspot = $adb->pquery('select contactid from vtiger_invoice where invoiceid=?',array($crmid));
-			}
-			break;
-		case 'PurchaseOrder':
-			$rspot = $adb->pquery('SELECT vendorid FROM vtiger_purchaseorder WHERE purchaseorderid=?',array($crmid));
-			break;
-		case 'Products':
-		case 'Services':
-			return 0;
-			break;
-		default:
-			return $crmid;
+			default:
+				return $crmid;
 			break;
 		}
-		$relid = $adb->query_result($rspot,0,0);
+		$relid = $adb->query_result($rspot, 0, 0);
 		return $relid;
 	}
 
 	public static function migrateExistingInventoryRecords() {
-		global $adb, $log, $current_user;
+		global $adb, $current_user;
 		$cbtaxrec = new coreBOSTax();
 		$cbtaxrec->mode = '';
 		$cbtaxrec->column_fields['assigned_user_id'] = $current_user->id;
@@ -544,13 +568,15 @@ class coreBOSTax extends CRMEntity {
 			$cbtaxrec->save('coreBOSTax');
 			$taxes[$tax['taxname']] = array('label'=>$tax['taxlabel'],'taxid'=>$cbtaxrec->id);
 		}
-		$result = $adb->query('SELECT vtiger_inventoryproductrel.*,coalesce(vtiger_salesorder.taxtype,vtiger_invoice.taxtype,vtiger_quotes.taxtype,vtiger_purchaseorder.taxtype) as taxtype
+		$result = $adb->query(
+			'SELECT vtiger_inventoryproductrel.*,coalesce(vtiger_salesorder.taxtype,vtiger_invoice.taxtype,vtiger_quotes.taxtype,vtiger_purchaseorder.taxtype) as taxtype
 			FROM `vtiger_inventoryproductrel`
 			left join vtiger_salesorder on salesorderid=id
 			left join vtiger_invoice on invoiceid=id
 			left join vtiger_quotes on vtiger_quotes.quoteid=id
 			left join vtiger_purchaseorder on purchaseorderid=id
-			order by id');
+			order by id'
+		);
 		$curinvid = 0;
 		while ($invline = $adb->fetch_array($result)) {
 			if ($curinvid!=$invline['id']) {
@@ -615,6 +641,5 @@ class coreBOSTax extends CRMEntity {
 			}
 		}
 	}
-
 }
 ?>

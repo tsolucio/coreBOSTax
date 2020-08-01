@@ -21,25 +21,21 @@ require_once 'modules/coreBOSTax/coreBOSTax.php';
 
 class coreBOSTaxInventoryHandler extends VTEventHandler {
 
-	function handleEvent($eventName, $entityData) {
-		global $log, $adb;
+	public function handleEvent($eventName, $entityData) {
 
-		if($eventName == 'vtiger.entity.beforesave') {
-		}
-
-		if($eventName == 'vtiger.entity.afterdelete') {
+		if ($eventName == 'vtiger.entity.afterdelete') {
 			// we leave this one deliberatly with no functionality so recovering from recycle bin will work
 		}
 
-		if($eventName == 'vtiger.entity.aftersave') {
+		if ($eventName == 'vtiger.entity.aftersave') {
 			$moduleName = $entityData->getModuleName();
-			if ($moduleName == 'Quotes' || $moduleName == 'SalesOrder' || $moduleName == 'Invoice' || $moduleName == 'PurchaseOrder') {
+			if (in_array($moduleName, getInventoryModules())) {
 				$focus = $entityData->focus;
-				if($moduleName == 'Invoice' && isset($focus->_recurring_mode) && $focus->_recurring_mode == 'recurringinvoice_from_so' && isset($focus->_salesorderid) && $focus->_salesorderid!='') {
+				if ($moduleName == 'Invoice' && isset($focus->_recurring_mode) && $focus->_recurring_mode == 'recurringinvoice_from_so' && isset($focus->_salesorderid) && $focus->_salesorderid!='') {
 					// We are getting called from the RecurringInvoice cron service!
 					$this->createRecurringInvoiceFromSO($focus);
-				} else if(isset($_REQUEST)) {
-					if (inventoryCanSaveProductLines($_REQUEST,$moduleName)) {
+				} elseif (isset($_REQUEST)) {
+					if (inventoryCanSaveProductLines($_REQUEST, $moduleName)) {
 						$this->saveInventoryProductDetails($focus, $moduleName);
 					}
 				}
@@ -47,12 +43,12 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 		}
 	}
 
-	function saveInventoryProductDetails($focus, $module) {
-		global $adb, $log;
+	public function saveInventoryProductDetails($focus, $module) {
+		global $adb;
 		$id = $focus->id;
-		$all_available_taxes = coreBOSTax::getAllTaxes('available','',$focus->mode,$id);
+		$all_available_taxes = coreBOSTax::getAllTaxes('available', '', $focus->mode, $id);
 		if ($focus->mode == 'edit') {
-			$adb->pquery('delete from vtiger_corebostaxinventory where invid=?',array($id));
+			$adb->pquery('delete from vtiger_corebostaxinventory where invid=?', array($id));
 		}
 		if ($module != 'PurchaseOrder') {
 			if (GlobalVariable::getVariable('Application_B2B', '1')=='1') {
@@ -67,13 +63,14 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid) values (?,?,?,?,?,?,?)';
 		$lines = $adb->pquery('select * from vtiger_inventoryproductrel where id=?', array($id));
 		if ($_REQUEST['taxtype'] == 'group') {
-			for($tax_count=0;$tax_count<count($all_available_taxes);$tax_count++) {
+			for ($tax_count=0; $tax_count<count($all_available_taxes); $tax_count++) {
 				$cbtaxid = $all_available_taxes[$tax_count]['taxid'];
 				$tax_name = $all_available_taxes[$tax_count]['taxname'];
 				$tax_val = $all_available_taxes[$tax_count]['percentage'];
-				$request_tax_name = str_replace(' ', '_', $tax_name)."_group_percentage";
-				if(isset($_REQUEST[$request_tax_name]))
+				$request_tax_name = str_replace(' ', '_', $tax_name).'_group_percentage';
+				if (isset($_REQUEST[$request_tax_name])) {
 					$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
+				}
 				$adb->pquery($inssql, array($tax_name,$id,0,$tax_val,'0',$cbtaxid,0));
 			}
 		} else {
@@ -81,14 +78,15 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 			while ($line = $adb->fetch_array($lines)) {
 				$pdoid = $line['productid'];
 				$lineitemid = $line['lineitem_id'];
-				$taxes_for_product = coreBOSTax::getTaxDetailsForProduct($pdoid,$acvid,'all',false);
-				for($tax_count=0;$tax_count<count($taxes_for_product);$tax_count++) {
+				$taxes_for_product = coreBOSTax::getTaxDetailsForProduct($pdoid, $acvid, 'all', false);
+				for ($tax_count=0; $tax_count<count($taxes_for_product); $tax_count++) {
 					$cbtaxid = $taxes_for_product[$tax_count]['taxid'];
 					$tax_name = $taxes_for_product[$tax_count]['taxname'];
 					$tax_val = $taxes_for_product[$tax_count]['percentage'];
-					$request_tax_name = str_replace(' ', '_', $tax_name)."_percentage".$i;
-					if(isset($_REQUEST[$request_tax_name]))
+					$request_tax_name = str_replace(' ', '_', $tax_name).'_percentage'.$i;
+					if (isset($_REQUEST[$request_tax_name])) {
 						$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
+					}
 					$adb->pquery($inssql, array($tax_name,$id,$pdoid,$tax_val,'0',$cbtaxid,$lineitemid));
 				}
 				$i++;
@@ -96,26 +94,25 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 		}
 
 		// to save the S&H tax details
-		$sh_tax_details = coreBOSTax::getAllTaxes('all','sh');
-		for($i=0;$i<count($sh_tax_details);$i++) {
+		$sh_tax_details = coreBOSTax::getAllTaxes('all', 'sh');
+		for ($i=0; $i<count($sh_tax_details); $i++) {
 			$tax_name = $sh_tax_details[$i]['taxname'];
 			$cbtaxid = $sh_tax_details[$i]['taxid'];
 			$tax_val = $sh_tax_details[$i]['percentage'];
 			$request_tax_name = str_replace(' ', '_', $tax_name).'_sh_percent';
-			if(isset($_REQUEST[$request_tax_name]))
+			if (isset($_REQUEST[$request_tax_name])) {
 				$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
+			}
 			$adb->pquery($inssql, array($tax_name,$id,0,$tax_val,'1',$cbtaxid,0));
 		}
 	}
 
-	function createRecurringInvoiceFromSO($focus) {
-		global $adb, $log;
+	private function createRecurringInvoiceFromSO($focus) {
+		global $adb;
 		$id = $focus->id;
 		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid) ';
-		$inssql.= "(select taxname,$id,pdoid,taxp,shipping,cbtaxid,lineitemid
-			FROM vtiger_corebostaxinventory where invid=".$focus->_salesorderid.')';
+		$inssql.= "(select taxname,$id,pdoid,taxp,shipping,cbtaxid,lineitemid FROM vtiger_corebostaxinventory where invid=".$focus->_salesorderid.')';
 		$adb->query($inssql);
 	}
 }
-
 ?>

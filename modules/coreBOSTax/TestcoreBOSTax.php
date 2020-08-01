@@ -49,59 +49,125 @@
 #taxtestresults {
 	width: 96%;
 	margin: auto;
+	margin-bottom: 10px;
 	font-size: medium;
 }
 </style>
+
+<div id="page-header-placeholder"></div>
+<div id="page-header" class="slds-page-header slds-m-vertical_medium">
+	<div class="slds-page-header__row">
+		<div class="slds-page-header__col-title">
+			<div class="slds-media">
+				<div class="slds-media__figure">
+					<a class="hdrLink" href="index.php?action=index&module=coreBOSTax">
+						<span class="slds-icon_container slds-icon-standard-system-and-global-variable" title="<?php echo getTranslatedString('coreBOSTax', 'coreBOSTax'); ?>">
+							<svg class="slds-icon slds-page-header__icon" id="page-header-icon" aria-hidden="true">
+								<use xmlns:xlink="http://www.w3.org/1999/xlink"
+									xlink:href="include/LD/assets/icons/standard-sprite/svg/symbols.svg#partner_fund_allocation" />
+							</svg>
+							<span class="slds-assistive-text"><?php echo getTranslatedString('coreBOSTax', 'coreBOSTax'); ?></span>
+						</span>
+					</a>
+				</div>
+				<div class="slds-media__body">
+					<div class="slds-page-header__name">
+						<div class="slds-page-header__name-title">
+							<h1>
+								<span class="slds-page-header__title slds-truncate" title="<?php echo getTranslatedString('coreBOSTax', 'coreBOSTax'); ?>">
+									<a class="hdrLink" href="index.php?action=index&module=coreBOSTax"><?php echo getTranslatedString('coreBOSTax', 'coreBOSTax'); ?></a>
+								</span>
+							</h1>
+							<p class="slds-page-header__row slds-page-header__name-meta">
+							<?php echo getTranslatedString('coreBOSTax', 'coreBOSTax').'&nbsp;-&nbsp;'.getTranslatedString('Test', 'coreBOSTax');?>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="slds-page-header__col-actions">
+		</div>
+		<div id="page-header-surplus">
+		</div>
+	</div>
+</div>
+<section role="dialog" tabindex="-1" class="slds-fade-in-open slds-modal_large slds-app-launcher">
+<div id="view" class="slds-modal__container slds-p-around_none slds-card">
 <form name='EditView'>
-<table width="98%" align="center" border="0" cellspacing="0" cellpadding="0" class="small">
-<tbody><tr><td style="height:2px"></td></tr>
-<tr>
-	<td nowrap="" class="moduleName" style="padding-left:36px;padding-right:50px;height:32px;background: url(modules/coreBOSTax/coreBOSTax.png) left center no-repeat;"><a href="index.php?module=coreBOSTax&action=index"><?php echo getTranslatedString('coreBOSTax','coreBOSTax').'&nbsp;-&nbsp;'.getTranslatedString('Test','coreBOSTax');?></a></td>
-</tr>
-<tr><td style="height:2px"></td></tr>
-</tbody></table>
-<br />
-<table width="560px" border="0" cellspacing="0" cellpadding="0">
-<tr>
-	<td class='gvtestlabeltext'><?php echo getTranslatedString('SINGLE_Accounts','Accounts');?></td>
-	<td>
+<div class="slds-form-element">
+	<label class="slds-form-element__label gvtestlabeltext" for="vlist"><?php echo getTranslatedString('SINGLE_Accounts', 'Accounts');?></label>
+	<div class="slds-form-element__control">
 		<input id="acc_to" name="acc_to" value="" type="hidden">
 		<input id="acc_to_type" name="acc_to_type" value="Accounts" type="hidden">
-		<input id="acc_to_display" name="acc_to_display" readonly="" style="border:1px solid #bababa;" value="" type="text">&nbsp;
-		<img src="themes/softed/images/select.gif" tabindex="" alt="Select" title="Select" language="javascript" 
-			onclick="return vtlib_open_popup_window('','acc_to','coreBOSTax','');" style="cursor:hand;cursor:pointer" align="absmiddle">&nbsp;
-		<input src="themes/images/clear_field.gif" alt="Clear" title="Clear" language="javascript" onclick="this.form.acc_to.value=''; this.form.acc_to_display.value=''; return false;" style="cursor:hand;cursor:pointer" align="absmiddle" type="image">&nbsp;
-</td>
-</tr>
-<tr>
-	<td class='gvtestlabeltext'><?php echo getTranslatedString('SINGLE_Products','Products');?></td>
-	<td>
+		<input id="acc_to_display" name="acc_to_display" readonly="" style="border:1px solid #bababa; width:40%" class="slds-input slds-m-left_large slds-page-header__meta-text" value="" type="text">&nbsp;
+		<button class="slds-button slds-button_icon" title="<?php echo getTranslatedString('LBL_SELECT'); ?>" type="button"
+			onclick='return vtlib_open_popup_window("", "acc_to", "coreBOSTax", "");'>
+		<svg class="slds-button__icon" aria-hidden="true">
+			<use xlink:href="include/LD/assets/icons/utility-sprite/svg/symbols.svg#choice"></use>
+		</svg>
+		<span class="slds-assistive-text"><?php echo getTranslatedString('LBL_SELECT'); ?></span>
+		</button>
+		<button class="slds-button slds-button_icon" title="<?php echo getTranslatedString('LBL_CLEAR'); ?>" type="button"
+			onclick="this.form.acc_to.value=''; this.form.acc_to_display.value='';">
+		<svg class="slds-button__icon" aria-hidden="true">
+			<use xlink:href="include/LD/assets/icons/utility-sprite/svg/symbols.svg#clear"></use>
+		</svg>
+		<span class="slds-assistive-text"><?php echo getTranslatedString('LBL_CLEAR'); ?></span>
+		</button>
+	</div>
+</div>
+<div class="slds-form-element">
+	<label class="slds-form-element__label gvtestlabeltext" for="ulist"><?php echo getTranslatedString('SINGLE_Products', 'Products');?></label>
+	<div class="slds-form-element__control">
 		<input id="pdo_to" name="pdo_to" value="" type="hidden">
 		<input id="pdo_to_type" name="pdo_to_type" value="Products" type="hidden">
-		<input id="pdo_to_display" name="pdo_to_display" readonly="" style="border:1px solid #bababa;" value="" type="text">&nbsp;
-		<img src="themes/softed/images/select.gif" tabindex="" alt="Select" title="Select" language="javascript" 
-			onclick="return vtlib_open_popup_window('','pdo_to','coreBOSTax','');" style="cursor:hand;cursor:pointer" align="absmiddle">&nbsp;
-		<input src="themes/images/clear_field.gif" alt="Clear" title="Clear" language="javascript" onclick="this.form.pdo_to.value=''; this.form.pdo_to_display.value=''; return false;" style="cursor:hand;cursor:pointer" align="absmiddle" type="image">&nbsp;
-	</td>
-</tr>
-<tr>
-	<td class='gvtestlabeltext'><?php echo getTranslatedString('Available','coreBOSTax');?></td>
-	<td><select name="available" id="available" style='width: 250px;'>
-		<option value='empty'>empty</option>
-		<option value='available'>available</option>
-		<option value='available_associated'>available_associated</option>
-		<option value='all'>all</option>
-	</select></td>
-</tr>
-<tr>
-	<td class='gvtestlabeltext'><?php echo getTranslatedString('Shipping','coreBOSTax');?></td>
-	<td><input name="shipping" id="shipping" type="checkbox"></td>
-</tr>
-<tr><td style="height:6px"></td></tr>
-<tr>
-	<td colspan="2" align="center"><button onclick="javascript:taxSearchTaxValue();return false;"><?php echo getTranslatedString('Search Value','GlobalVariable');?></button></td>
-</tr>
-<tr><td style="height:6px"></td></tr>
-</table>
+		<input id="pdo_to_display" name="pdo_to_display" readonly="" style="border:1px solid #bababa; width:40%" class="slds-input slds-m-left_large slds-page-header__meta-text" value="" type="text">&nbsp;
+		<button class="slds-button slds-button_icon" title="<?php echo getTranslatedString('LBL_SELECT'); ?>" type="button"
+			onclick='return vtlib_open_popup_window("", "pdo_to", "coreBOSTax", "");'>
+		<svg class="slds-button__icon" aria-hidden="true">
+			<use xlink:href="include/LD/assets/icons/utility-sprite/svg/symbols.svg#choice"></use>
+		</svg>
+		<span class="slds-assistive-text"><?php echo getTranslatedString('LBL_SELECT'); ?></span>
+		</button>
+		<button class="slds-button slds-button_icon" title="<?php echo getTranslatedString('LBL_CLEAR'); ?>" type="button"
+			onclick="this.form.pdo_to.value=''; this.form.pdo_to_display.value='';">
+		<svg class="slds-button__icon" aria-hidden="true">
+			<use xlink:href="include/LD/assets/icons/utility-sprite/svg/symbols.svg#clear"></use>
+		</svg>
+		<span class="slds-assistive-text"><?php echo getTranslatedString('LBL_CLEAR'); ?></span>
+		</button>
+	</div>
+</div>
+<div class="slds-form-element">
+	<label class="slds-form-element__label gvtestlabeltext" for="mlist"><?php echo getTranslatedString('Available', 'coreBOSTax');?></label>
+	<div class="slds-form-element__control">
+		<select name="available" id="available" class='slds-select slds-m-left_large slds-page-header__meta-text' style="width:40%;">
+			<option value='empty'>empty</option>
+			<option value='available'>available</option>
+			<option value='available_associated'>available_associated</option>
+			<option value='all'>all</option>
+		</select>
+	</div>
+</div>
+<div class="slds-form-element">
+	<label class="slds-form-element__label gvtestlabeltext" for="mlist"><?php echo getTranslatedString('Shipping', 'coreBOSTax');?></label>
+	<div class="slds-form-element__control">
+	<span class="slds-checkbox slds-checkbox_standalone slds-m-left_large slds-page-header__meta-text">
+		<input name="shipping" id="shipping" type="checkbox">
+		<span class="slds-checkbox_faux"></span>
+	</span>
+	</div>
+</div>
+<div class="slds-form-element slds-m-around_large">
+	<button class="slds-button slds-button_neutral" type="button" onclick="javascript:taxSearchTaxValue();">
+		<svg class="slds-button__icon slds-button__icon_left" aria-hidden="true">
+			<use xlink:href="include/LD/assets/icons/utility-sprite/svg/symbols.svg#search"></use>
+		</svg>
+		<?php echo getTranslatedString('Search Value', 'GlobalVariable');?>
+	</button>
+</div>
 </form>
 <div name="taxtestresults" id="taxtestresults"></div>
+</div>
+</section>
