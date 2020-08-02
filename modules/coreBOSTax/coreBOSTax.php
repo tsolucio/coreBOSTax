@@ -249,7 +249,7 @@ class coreBOSTax extends CRMEntity {
 		} else {
 			$taxvalidationinfo[] = 'No related product/service';
 		}
-		$sql = 'select corebostaxid as taxid, taxname, taxp as taxpercentage, deleted
+		$sql = 'select corebostaxid as taxid, taxname, taxp as taxpercentage, deleted, retention, tdefault, qcreate
 			from vtiger_corebostax
 			inner join vtiger_crmentity on crmid=corebostaxid ';
 		if (empty($acvttype)) {
@@ -317,6 +317,9 @@ class coreBOSTax extends CRMEntity {
 			$tax_details['taxlabel'] = $tname;
 			$tax_details['percentage'] = $tax['taxpercentage'];
 			$tax_details['deleted'] = $tax['deleted'];
+			$tax_details['retention'] = $tax['retention'];
+			$tax_details['default'] = $tax['tdefault'];
+			$tax_details['qcreate'] = $tax['qcreate'];
 			$taxes[$i] = $tax_details;
 			$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['taxid'].'">';
 			$taxfound.= $tname.'</a> '.$tax['taxpercentage'];
@@ -361,9 +364,10 @@ class coreBOSTax extends CRMEntity {
 			} else {
 				$ship = '0';
 			}
-			$res = $adb->pquery("select * from vtiger_corebostaxinventory
-			 left join vtiger_crmentity on crmid = cbtaxid
-			 where invid=? and shipping=?", array($crmid,$ship));
+			$res = $adb->pquery(
+				'select * from vtiger_corebostaxinventory left join vtiger_crmentity on crmid = cbtaxid where invid=? and shipping=?',
+				array($crmid,$ship)
+			);
 			$taxes = array();
 			$i = 0;
 			while ($tax=$adb->fetch_array($res)) {
@@ -374,6 +378,7 @@ class coreBOSTax extends CRMEntity {
 				$tax_details['taxname'] = $tname;
 				$tax_details['taxlabel'] = $tname;
 				$tax_details['percentage'] = $tax['taxp'];
+				$tax_details['retention'] = $tax['retention'];
 				$tax_details['deleted'] = (empty($tax['deleted']) || $tax['deleted']=='1') ? '1' : '0';
 				$taxes[$i] = $tax_details;
 				$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['cbtaxid'].'">';
@@ -556,7 +561,7 @@ class coreBOSTax extends CRMEntity {
 		$cbtaxrec->column_fields['acvtaxtype'] = 0;
 		$cbtaxrec->column_fields['pdotaxtype'] = 0;
 		$_REQUEST['assigntype'] = 'U';
-		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid) values (?,?,?,?,?,?,?)';
+		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid,retention) values (?,?,?,?,?,?,?,?)';
 		$rstax = $adb->query('select * from vtiger_inventorytaxinfo');
 		$taxes = array();
 		while ($tax=$adb->fetch_array($rstax)) {
@@ -565,8 +570,13 @@ class coreBOSTax extends CRMEntity {
 			$cbtaxrec->column_fields['corebostaxactive'] = $tax['deleted'] == '1' ? '0' : '1';
 			$cbtaxrec->column_fields['taxp'] = $tax['percentage'];
 			$cbtaxrec->column_fields['shipping'] = '0';
+			$cbtaxrec->column_fields['retention'] = $tax['retention'];
 			$cbtaxrec->save('coreBOSTax');
-			$taxes[$tax['taxname']] = array('label'=>$tax['taxlabel'],'taxid'=>$cbtaxrec->id);
+			$taxes[$tax['taxname']] = array(
+				'label'=>$tax['taxlabel'],
+				'taxid'=>$cbtaxrec->id,
+				'retention'=>$tax['retention'],
+			);
 		}
 		$result = $adb->query(
 			'SELECT vtiger_inventoryproductrel.*,coalesce(vtiger_salesorder.taxtype,vtiger_invoice.taxtype,vtiger_quotes.taxtype,vtiger_purchaseorder.taxtype) as taxtype
@@ -594,6 +604,7 @@ class coreBOSTax extends CRMEntity {
 						$params[] = 0;
 						$params[] = $taxes[$taxn]['taxid'];
 						$params[] = $invline['lineitem_id'];
+						$params[] = $taxes[$taxn]['retention'];
 						$adb->pquery($inssql, $params);
 					}
 				}
@@ -610,6 +621,9 @@ class coreBOSTax extends CRMEntity {
 					$params[] = 0;
 					$params[] = $taxes[$taxn]['taxid'];
 					$params[] = $invline['lineitem_id'];
+					$params[] = $taxes[$taxn]['retention'];
+					$params[] = $taxes[$taxn]['tdefault'];
+					$params[] = $taxes[$taxn]['qcreate'];
 					$adb->pquery($inssql, $params);
 				}
 			}
@@ -636,6 +650,7 @@ class coreBOSTax extends CRMEntity {
 				$params[] = $invline[$taxn];
 				$params[] = 1;
 				$params[] = $taxdetail['taxid'];
+				$params[] = 0;
 				$params[] = 0;
 				$adb->pquery($inssql, $params);
 			}

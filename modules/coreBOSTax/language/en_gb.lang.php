@@ -25,5 +25,8 @@ $mod_strings = array(
 	'Available' => 'Available',
 	'Shipping' => 'Shipping',
 	'notaxnumname' => 'must be unique and tax{num} names are not allowed, for example: tax1 or tax9',
+	'retention' => 'Retention',
+	'tdefault' => 'Selected by Default',
+	'qcreate' => 'Quick Create',
 );
 ?>

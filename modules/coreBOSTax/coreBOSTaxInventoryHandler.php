@@ -60,18 +60,19 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 			$acvid = $focus->column_fields['vendor_id'];
 		}
 
-		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid) values (?,?,?,?,?,?,?)';
+		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid,retention) values (?,?,?,?,?,?,?,?)';
 		$lines = $adb->pquery('select * from vtiger_inventoryproductrel where id=?', array($id));
 		if ($_REQUEST['taxtype'] == 'group') {
 			for ($tax_count=0; $tax_count<count($all_available_taxes); $tax_count++) {
 				$cbtaxid = $all_available_taxes[$tax_count]['taxid'];
 				$tax_name = $all_available_taxes[$tax_count]['taxname'];
 				$tax_val = $all_available_taxes[$tax_count]['percentage'];
+				$tax_ret = $all_available_taxes[$tax_count]['retention'];
 				$request_tax_name = str_replace(' ', '_', $tax_name).'_group_percentage';
 				if (isset($_REQUEST[$request_tax_name])) {
 					$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
 				}
-				$adb->pquery($inssql, array($tax_name,$id,0,$tax_val,'0',$cbtaxid,0));
+				$adb->pquery($inssql, array($tax_name,$id,0,$tax_val,'0',$cbtaxid,0,$tax_ret));
 			}
 		} else {
 			$i = 1;
@@ -83,11 +84,12 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 					$cbtaxid = $taxes_for_product[$tax_count]['taxid'];
 					$tax_name = $taxes_for_product[$tax_count]['taxname'];
 					$tax_val = $taxes_for_product[$tax_count]['percentage'];
+					$tax_ret = $taxes_for_product[$tax_count]['retention'];
 					$request_tax_name = str_replace(' ', '_', $tax_name).'_percentage'.$i;
 					if (isset($_REQUEST[$request_tax_name])) {
 						$tax_val =vtlib_purify($_REQUEST[$request_tax_name]);
 					}
-					$adb->pquery($inssql, array($tax_name,$id,$pdoid,$tax_val,'0',$cbtaxid,$lineitemid));
+					$adb->pquery($inssql, array($tax_name,$id,$pdoid,$tax_val,'0',$cbtaxid,$lineitemid,$tax_ret));
 				}
 				$i++;
 			}
@@ -109,10 +111,9 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 
 	private function createRecurringInvoiceFromSO($focus) {
 		global $adb;
-		$id = $focus->id;
-		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid) ';
-		$inssql.= "(select taxname,$id,pdoid,taxp,shipping,cbtaxid,lineitemid FROM vtiger_corebostaxinventory where invid=".$focus->_salesorderid.')';
-		$adb->query($inssql);
+		$inssql = 'insert into vtiger_corebostaxinventory (taxname,invid,pdoid,taxp,shipping,cbtaxid,lineitemid,retention) ';
+		$inssql.= '(select taxname,?,pdoid,taxp,shipping,cbtaxid,lineitemid,retention FROM vtiger_corebostaxinventory where invid=?)';
+		$adb->pquery($inssql, array($focus->id, $focus->_salesorderid));
 	}
 }
 ?>

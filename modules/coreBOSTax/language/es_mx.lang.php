@@ -25,5 +25,8 @@ $mod_strings = array(
 	'Available' => 'Disponible',
 	'Shipping' => 'Impuesto de Envíos',
 	'notaxnumname' => 'no puede repetirse y nombres del tipo tax{num} no están permitdos, por ejemplo: tax1 o tax9',
+	'retention' => 'Retención',
+	'tdefault' => 'Seleccionado por Defecto',
+	'qcreate' => 'Creación Rápida',
 );
 ?>
