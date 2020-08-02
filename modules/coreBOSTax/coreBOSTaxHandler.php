@@ -17,6 +17,9 @@
  *  Version      : 1.0
  *  Author       : JPL TSolucio, S. L.
  *************************************************************************************************/
+include_once 'include/Webservices/Revise.php';
+include_once 'include/Webservices/Create.php';
+
 class coreBOSTaxEvents extends VTEventHandler {
 	private $_moduleCache = array();
 
@@ -25,6 +28,59 @@ class coreBOSTaxEvents extends VTEventHandler {
 	 * @param $entityData VTEntityData
 	 */
 	public function handleEvent($handlerType, $entityData) {
+		global $adb, $current_user;
+		switch ($handlerType) {
+			case 'corebos.changestatus.tax':
+				if ($entityData['tax_type'] == 'tax') {
+					$adb->pquery('update vtiger_crmentity set deleted=? where crmid=?', array(($entityData['status'] == 'disabled' ? 1 : 0), $entityData['tax_id']));
+				}
+				break;
+			case 'corebos.changelabel.tax':
+				if ($entityData['tax_type'] == 'tax') {
+					$res = $adb->pquery('SELECT deleted FROM vtiger_crmentity WHERE crmid=?', array($entityData['tax_id']));
+					if ($res && $adb->num_rows($res)>0 && $res->fields['deleted']==0) {
+						$tname = str_replace(' ', '_', $entityData['new_label']);
+						vtws_revise(
+							array(
+								'id' => vtws_getEntityId('coreBOSTax').'x'.vtlib_purify($entityData['tax_id']),
+								'taxname' => vtlib_purify($entityData['new_label']),
+								'taxp' => vtlib_purify($_REQUEST[$tname]),
+								'retention' => isset($_REQUEST[$tname.'retention']) ? 1 : 0,
+								'tdefault' => isset($_REQUEST[$tname.'default']) ? 1 : 0,
+								'qcreate' => isset($_REQUEST[$tname.'qcreate']) ? 1 : 0,
+							),
+							$current_user
+						);
+					}
+				}
+				break;
+			case 'corebos.add.tax':
+				if (isset($_REQUEST['sh_addTaxLabel'])) {
+					$elem = array(
+						'taxname' => vtlib_purify($_REQUEST['sh_addTaxLabel']),
+						'corebostaxactive' => 1,
+						'shipping' => 1,
+						'taxp' => vtlib_purify($_REQUEST['sh_addTaxValue']),
+						'retention' => 0,
+						'tdefault' => 0,
+						'qcreate' => 0,
+						'assigned_user_id' => vtws_getEntityId('Users').'x'.$current_user->id,
+					);
+				} else {
+					$elem = array(
+						'taxname' => vtlib_purify($_REQUEST['addTaxLabel']),
+						'corebostaxactive' => 1,
+						'shipping' => 0,
+						'taxp' => vtlib_purify($_REQUEST['addTaxValue']),
+						'retention' => isset($_REQUEST['addTaxLabelretention']) ? 1 : 0,
+						'tdefault' => isset($_REQUEST['addTaxLabeldefault']) ? 1 : 0,
+						'qcreate' => isset($_REQUEST['addTaxLabelqcreate']) ? 1 : 0,
+						'assigned_user_id' => vtws_getEntityId('Users').'x'.$current_user->id,
+					);
+				}
+				vtws_create('coreBOSTax', $elem, $current_user);
+				break;
+		}
 	}
 
 	public function handleFilter($handlerType, $parameter) {
