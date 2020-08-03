@@ -368,7 +368,7 @@ class coreBOSTax extends CRMEntity {
 				$ship = '0';
 			}
 			$res = $adb->pquery(
-				'select * from vtiger_corebostaxinventory left join vtiger_crmentity on crmid = cbtaxid where invid=? and shipping=?',
+				'select pdoid,cbtaxid,taxname,taxp,retention,deleted from vtiger_corebostaxinventory left join vtiger_crmentity on crmid=cbtaxid where invid=? and shipping=?',
 				array($crmid,$ship)
 			);
 			$taxes = array();
