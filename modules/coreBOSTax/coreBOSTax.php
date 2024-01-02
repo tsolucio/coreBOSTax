@@ -11,8 +11,6 @@ require_once 'data/CRMEntity.php';
 require_once 'data/Tracker.php';
 
 class coreBOSTax extends CRMEntity {
-	public $db;
-
 	public $table_name = 'vtiger_corebostax';
 	public $table_index= 'corebostaxid';
 	public $column_fields = array();
@@ -112,8 +110,8 @@ class coreBOSTax extends CRMEntity {
 
 	/**
 	 * Invoked when special actions are performed on the module.
-	 * @param String Module name
-	 * @param String Event Type (module.postinstall, module.disabled, module.enabled, module.preuninstall)
+	 * @param string Module name
+	 * @param string Event Type (module.postinstall, module.disabled, module.enabled, module.preuninstall)
 	 */
 	public function vtlib_handler($modulename, $event_type) {
 		if ($event_type == 'module.postinstall') {
@@ -152,42 +150,14 @@ class coreBOSTax extends CRMEntity {
 		}
 	}
 
-	/**
-	 * Handle saving related module information.
-	 * NOTE: This function has been added to CRMEntity (base class).
-	 * You can override the behavior by re-defining it here.
-	 */
-	// public function save_related_module($module, $crmid, $with_module, $with_crmid) { }
-
-	/**
-	 * Handle deleting related module information.
-	 * NOTE: This function has been added to CRMEntity (base class).
-	 * You can override the behavior by re-defining it here.
-	 */
-	//public function delete_related_module($module, $crmid, $with_module, $with_crmid) { }
-
-	/**
-	 * Handle getting related list information.
-	 * NOTE: This function has been added to CRMEntity (base class).
-	 * You can override the behavior by re-defining it here.
-	 */
-	//public function get_related_list($id, $cur_tab_id, $rel_tab_id, $actions=false) { }
-
-	/**
-	 * Handle getting dependents list information.
-	 * NOTE: This function has been added to CRMEntity (base class).
-	 * You can override the behavior by re-defining it here.
-	 */
-	//public function get_dependents_list($id, $cur_tab_id, $rel_tab_id, $actions=false) { }
-
 	/** Function used to get all the tax details which are associated to the given product
-	 * @param int $productid - product/service id for which we want to get all the associated taxes
-	 * @param int $acvid - account/contact/vendor id for which we want to get all the associated taxes
-	 * @param string $available - available, available_associated or all. default is all
+	 * @param int product/service id for which we want to get all the associated taxes
+	 * @param int account/contact/vendor id for which we want to get all the associated taxes
+	 * @param string available, available_associated or all. default is all
 	 *    if available then the taxes which are available now will be returned,
 	 *    if all then all taxes will be returned
 	 *    if available_associated then all the associated taxes even if they are not available and all the available taxes will be retruned
-	 * @return array $tax_details - tax details as a array with productid, taxid, taxname, percentage and deleted
+	 * @return array tax details as a array with productid, taxid, taxname, percentage and deleted
 	 */
 	public static function getTaxDetailsForProduct($pdosrvid, $acvid, $available = 'all', $shipping = false) {
 		global $adb, $taxvalidationinfo;
@@ -333,10 +303,10 @@ class coreBOSTax extends CRMEntity {
 	}
 
 	/**	function to get the product's taxpercentage
-	 *	@param string $taxname - tax name (VAT or Sales or Service)
-	 *	@param int $productid  - product/service id for which we want the tax percentage
-	 *	@param id  $default    - ignored
-	 *	return int $taxpercentage - taxpercentage corresponding to the Tax type from vtiger_inventorytaxinfo vtiger_table
+	 *	@param string tax name (VAT or Sales or Service)
+	 *	@param int product/service id for which we want the tax percentage
+	 *	@param int ignored
+	 *	@return int taxpercentage corresponding to the Tax type from vtiger_inventorytaxinfo vtiger_table
 	 */
 	public static function getProductTaxPercentage($taxname, $pdosrvid, $default = '') {
 		$taxes = self::getTaxDetailsForProduct($pdosrvid, 0, 'available');
@@ -351,13 +321,12 @@ class coreBOSTax extends CRMEntity {
 	}
 
 	/**	Function used to get the list of Tax types as a array
-	 *	@param string $available - available or empty where as default is all,
-	 * 		if available then the taxes which are available now will be returned
-	 * 		otherwise all taxes will be returned
-	 *	@param string $sh - sh or empty, if sh passed then the shipping and handling related taxes will be returned
-	 *	@param string $mode - edit or empty, if mode is edit, then it will return taxes including disabled.
-	 *	@param string $crmid - crmid or empty, getting crmid to get tax values..
-	 *	return array $taxtypes - return all the tax types as a array
+	 *	@param string available or empty where as default is all,
+	 *		if available then the taxes which are available now will be returned otherwise all taxes will be returned
+	 *	@param string sh or empty, if sh passed then the shipping and handling related taxes will be returned
+	 *	@param string edit or empty, if mode is edit, then it will return taxes including disabled.
+	 *	@param string crmid or empty, getting crmid to get tax values..
+	 *	@return array all the tax types
 	 */
 	public static function getAllTaxes($available = 'all', $sh = '', $mode = '', $crmid = '') {
 		global $adb, $taxvalidationinfo;
@@ -446,8 +415,8 @@ class coreBOSTax extends CRMEntity {
 	}
 
 	/**	function to get the taxpercentage
-	 *	@param string $taxname    - tax name (VAT or Sales or Service)
-	 *	return int $taxpercentage - taxpercentage corresponding to the Tax type
+	 *	@param string tax name (VAT or Sales or Service)
+	 *	@return int taxpercentage corresponding to the Tax type
 	 */
 	public static function getTaxPercentage($taxname) {
 		$taxes = self::getTaxDetailsForProduct(0, 0);
@@ -462,8 +431,8 @@ class coreBOSTax extends CRMEntity {
 	}
 
 	/**	function to get the taxid
-	 *	@param string $taxname - tax name (VAT or Sales or Service)
-	 *	return int   $taxid    - taxid corresponding to the Tax type
+	 *	@param string tax name (VAT or Sales or Service)
+	 *	@return int taxid corresponding to the Tax type
 	 */
 	public static function getTaxId($taxname) {
 		$taxes = self::getTaxDetailsForProduct(0, 0);
@@ -478,10 +447,10 @@ class coreBOSTax extends CRMEntity {
 	}
 
 	/**	function used to get the taxvalue which is associated with a product for PO/SO/Quotes or Invoice
-	 *	@param int $id - id of PO/SO/Quotes or Invoice
-	 *	@param int $productid - product id
-	 *	@param string $taxname - taxname to which we want the value
-	 *	@return float $taxvalue - tax value
+	 *	@param int id of PO/SO/Quotes or Invoice
+	 *	@param int product id
+	 *	@param string taxname to which we want the value
+	 *	@return float tax value
 	 */
 	public static function getInventoryProductTaxValue($id, $productid, $taxname) {
 		global $adb;
@@ -498,9 +467,9 @@ class coreBOSTax extends CRMEntity {
 	}
 
 	/**	function used to get the shipping & handling tax percentage for the given inventory id and taxname
-	 *	@param int $id - entity id which will be PO/SO/Quotes or Invoice id
-	 *	@param string $taxname - shipping and handling taxname
-	 *	@return float $taxpercentage - shipping and handling taxpercentage which is associated with the given entity
+	 *	@param int entity id which will be PO/SO/Quotes or Invoice id
+	 *	@param string shipping and handling taxname
+	 *	@return float shipping and handling taxpercentage which is associated with the given entity
 	 */
 	public static function getInventorySHTaxPercent($id, $taxname) {
 		global $adb;
