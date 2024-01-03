@@ -363,7 +363,6 @@ class coreBOSTax extends CRMEntity {
 			if (!empty($crmid)) { // we get the related ACV
 				$acvid = coreBOSTax::getParentACV($crmid, GlobalVariable::getVariable('Application_B2B', '1'));
 			} else {
-				$acvid = 0;
 				if (!empty($_REQUEST['return_module'])) {
 					$_REQUEST['invmod'] = $_REQUEST['return_module'];
 				}

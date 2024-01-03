@@ -31,7 +31,9 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 			$moduleName = $entityData->getModuleName();
 			if (in_array($moduleName, getInventoryModules())) {
 				$focus = $entityData->focus;
-				if ($moduleName == 'Invoice' && isset($focus->_recurring_mode) && $focus->_recurring_mode == 'recurringinvoice_from_so' && isset($focus->_salesorderid) && $focus->_salesorderid!='') {
+				if ($moduleName == 'Invoice' && isset($focus->_recurring_mode) && $focus->_recurring_mode == 'recurringinvoice_from_so'
+					&& isset($focus->_salesorderid) && $focus->_salesorderid != ''
+				) {
 					// We are getting called from the RecurringInvoice cron service!
 					$this->createRecurringInvoiceFromSO($focus);
 				} elseif (isset($_REQUEST)) {
