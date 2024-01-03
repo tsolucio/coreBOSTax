@@ -27,7 +27,7 @@ class coreBOSTaxInventoryHandler extends VTEventHandler {
 			// we leave this one deliberatly with no functionality so recovering from recycle bin will work
 		}
 
-		if ($eventName == 'vtiger.entity.aftersave') {
+		if ($eventName == 'vtiger.entity.aftersave.first') {
 			$moduleName = $entityData->getModuleName();
 			if (in_array($moduleName, getInventoryModules())) {
 				$focus = $entityData->focus;

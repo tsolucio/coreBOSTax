@@ -486,7 +486,7 @@
 </sharingaccess>
 <events>
 <event>
-<eventname>vtiger.entity.aftersave</eventname>
+<eventname>vtiger.entity.aftersave.first</eventname>
 <classname><![CDATA[coreBOSTaxInventoryHandler]]></classname>
 <filename><![CDATA[modules/coreBOSTax/coreBOSTaxInventoryHandler.php]]></filename>
 </event>
