@@ -19,6 +19,7 @@
  *************************************************************************************************/
 include_once 'include/Webservices/Revise.php';
 include_once 'include/Webservices/Create.php';
+require_once 'modules/coreBOSTax/coreBOSTaxInventoryHandler.php';
 
 class coreBOSTaxEvents extends VTEventHandler {
 	private $_moduleCache = array();
@@ -84,7 +85,7 @@ class coreBOSTaxEvents extends VTEventHandler {
 	}
 
 	public function handleFilter($handlerType, $parameter) {
-		global $currentModule;
+		global $currentModule,$adb;
 		require_once 'modules/coreBOSTax/coreBOSTax.php';
 		global $taxvalidationinfo;
 		$taxvalidationinfo = array();
@@ -125,6 +126,65 @@ class coreBOSTaxEvents extends VTEventHandler {
 				$id = vtlib_purify($parameter[0]);
 				$taxname = vtlib_purify($parameter[1]);
 				$parameter[2] = coreBOSTax::getInventorySHTaxPercent($id, $taxname);
+				break;
+			case 'corebos.filter.TaxCalculation.getInventoryDetailsSQL':
+				$related_to = $parameter[0];
+				$taxtype = $parameter[1];
+				$query = '';
+				$txsql = '';
+				$txsel = '(SELECT COALESCE(taxp, 0) FROM vtiger_corebostaxinventory
+					WHERE vtiger_corebostaxinventory.lineitemid=vtiger_inventoryproductrel.lineitem_id and taxname=?)';
+				$taxes = coreBOSTax::getAllTaxes();
+				$txnames = [];
+				$iter = 1;
+				foreach ($taxes as $tax) {
+					$txnames[] = $tax['taxname'];
+					$txsql .= $adb->convert2Sql($txsel, [$tax['taxname']])." AS id_tax{$iter}_perc,";
+					$iter++;
+				}
+				for ($fill=3; $fill>=$iter; $iter++) {
+					$txsql .= "0 AS id_tax{$iter}_perc,";
+					$iter++;
+				}
+				// we need corebostaxinventory in sync with inventoryproductrel so we call update handler
+				$entityData = VTEntityData::fromCRMEntity($related_to);
+				$handler = new coreBOSTaxInventoryHandler();
+				$handler->handleEvent('vtiger.entity.aftersave.first', $entityData);
+				// calculate inventory line information with taxes
+				if ($taxtype == 'group') {
+					$query = "SELECT id as related_to, vtiger_inventoryproductrel.productid, sequence_no, lineitem_id, quantity, listprice, comment as description,
+						quantity * listprice AS extgross, $txsql
+						COALESCE(discount_percent, COALESCE(discount_amount *100 / (quantity * listprice) , 0)) AS discount_percent,
+						COALESCE(discount_amount, COALESCE(discount_percent * quantity * listprice /100, 0)) AS discount_amount,
+						round((quantity * listprice) - COALESCE(discount_amount, COALESCE(discount_percent * quantity * listprice /100, 0)), 6) AS extnet,
+						round(((quantity * listprice) - COALESCE(discount_amount, COALESCE(discount_percent * quantity * listprice /100, 0))), 6) AS linetotal,
+						case when vtiger_products.productid != '' then vtiger_products.cost_price else vtiger_service.cost_price end as cost_price,
+						case when vtiger_products.productid != '' then vtiger_products.vendor_id else 0 end as vendor_id
+						FROM vtiger_inventoryproductrel
+						LEFT JOIN vtiger_products ON vtiger_products.productid=vtiger_inventoryproductrel.productid
+						LEFT JOIN vtiger_service ON vtiger_service.serviceid=vtiger_inventoryproductrel.productid
+						WHERE id=? ORDER BY sequence_no";
+				} elseif ($taxtype == 'individual') {
+					$txsumsql = $adb->convert2Sql(
+						'(select sum(taxp) from vtiger_corebostaxinventory
+							WHERE vtiger_corebostaxinventory.lineitemid=vtiger_inventoryproductrel.lineitem_id and taxname in ('.generateQuestionMarks($txnames).'))',
+						$txnames
+					);
+					$query = "SELECT id as related_to, vtiger_inventoryproductrel.productid, sequence_no, lineitem_id, quantity, listprice, comment as description,
+						$txsql $txsumsql as tax_percent, quantity * listprice AS extgross,
+						COALESCE(discount_percent, COALESCE(discount_amount *100 / (quantity * listprice) , 0)) AS discount_percent,
+						COALESCE(discount_amount, COALESCE(discount_percent * quantity * listprice /100, 0)) AS discount_amount,
+						(quantity * listprice) - COALESCE(discount_amount, COALESCE(discount_percent * quantity * listprice /100, 0)) AS extnet,
+						round(((quantity*listprice) - COALESCE(discount_amount, COALESCE(discount_percent*quantity*listprice/100, 0)))*$txsumsql/100, 6) AS linetax,
+						round(((quantity*listprice) - COALESCE(discount_amount, COALESCE(discount_percent*quantity*listprice/100, 0)))*(1+$txsumsql/100), 6) AS linetotal,
+						case when vtiger_products.productid != '' then vtiger_products.cost_price else vtiger_service.cost_price end as cost_price,
+						case when vtiger_products.productid != '' then vtiger_products.vendor_id else 0 end as vendor_id
+						FROM vtiger_inventoryproductrel
+						LEFT JOIN vtiger_products ON vtiger_products.productid=vtiger_inventoryproductrel.productid
+						LEFT JOIN vtiger_service ON vtiger_service.serviceid=vtiger_inventoryproductrel.productid
+						WHERE id=? ORDER BY sequence_no";
+				}
+				$parameter[4] = $query;
 				break;
 		}
 		return $parameter;
