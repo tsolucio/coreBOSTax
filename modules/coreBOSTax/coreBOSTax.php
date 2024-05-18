@@ -477,7 +477,7 @@ class coreBOSTax extends CRMEntity {
 		if ($res && $adb->num_rows($res)>0) {
 			$taxpercentage = $adb->query_result($res, 0, 'taxp');
 		} else {
-			$taxpercentage = '0.00';
+			$taxpercentage = '';
 		}
 		return $taxpercentage;
 	}
