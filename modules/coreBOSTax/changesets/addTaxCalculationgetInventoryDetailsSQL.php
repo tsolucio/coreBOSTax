@@ -28,6 +28,9 @@ class addTaxCalculationgetInventoryDetailsSQL extends cbupdaterWorker {
 			global $adb;
 			$em = new VTEventsManager($adb);
 			$em->registerHandler('corebos.filter.TaxCalculation.getInventoryDetailsSQL', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
+			$adb->query(
+				"update vtiger_eventhandlers set event_name='vtiger.entity.aftersave.first' where event_name='vtiger.entity.aftersave' and handler_class='coreBOSTaxInventoryHandler'"
+			);
 			$this->sendMsg('Changeset '.get_class($this).' applied!');
 			$this->markApplied(false);
 		}
