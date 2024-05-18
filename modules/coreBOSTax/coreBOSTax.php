@@ -475,7 +475,7 @@ class coreBOSTax extends CRMEntity {
 			array($id,$taxname)
 		);
 		if ($res && $adb->num_rows($res)>0) {
-			$taxpercentage = $adb->query_result($res, 0, 'taxp');
+			$taxpercentage = $res->fields['taxp'];
 		} else {
 			$taxpercentage = '';
 		}
@@ -518,8 +518,7 @@ class coreBOSTax extends CRMEntity {
 				return $crmid;
 				break;
 		}
-		$relid = $adb->query_result($rspot, 0, 0);
-		return $relid;
+		return $adb->query_result($rspot, 0, 0);
 	}
 
 	public static function migrateExistingInventoryRecords() {
