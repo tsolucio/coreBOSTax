@@ -7,4 +7,11 @@
 	<classname>installcoreBOSTaxModules</classname>
 	<systemupdate>false</systemupdate>
 </changeSet>
+<changeSet>
+	<author>joebordes</author>
+	<description>Add TaxCalculation.getInventoryDetailsSQL event handler</description>
+	<filename>modules/coreBOSTax/changesets/addTaxCalculationgetInventoryDetailsSQL.php</filename>
+	<classname>addTaxCalculationgetInventoryDetailsSQL</classname>
+	<systemupdate>false</systemupdate>
+</changeSet>
 </updatesChangeLog>

@@ -134,6 +134,7 @@ class coreBOSTax extends CRMEntity {
 			$em->registerHandler('corebos.filter.TaxCalculation.getTaxId', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
 			$em->registerHandler('corebos.filter.TaxCalculation.getInventoryProductTaxValue', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
 			$em->registerHandler('corebos.filter.TaxCalculation.getInventorySHTaxPercent', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
+			$em->registerHandler('corebos.filter.TaxCalculation.getInventoryDetailsSQL', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
 			$em->registerHandler('corebos.changestatus.tax', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
 			$em->registerHandler('corebos.changelabel.tax', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
 			$em->registerHandler('corebos.add.tax', 'modules/coreBOSTax/coreBOSTaxHandler.php', 'coreBOSTaxEvents');
