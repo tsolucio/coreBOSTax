@@ -336,21 +336,22 @@ class coreBOSTax extends CRMEntity {
 				$ship = '0';
 			}
 			$res = $adb->pquery(
-				'select pdoid,cbtaxid,taxname,taxp,retention,deleted from vtiger_corebostaxinventory left join vtiger_crmentity on crmid=cbtaxid where invid=? and shipping=?',
+				'select distinct cbtaxid,taxname,taxp,retention,deleted
+					from vtiger_corebostaxinventory left join vtiger_crmentity on crmid=cbtaxid where invid=? and shipping=?',
 				array($crmid,$ship)
 			);
 			$taxes = array();
 			$i = 0;
 			while ($tax=$adb->fetch_array($res)) {
 				$tax_details = array();
-				$tax_details['productid'] = $tax['pdoid'];
+				// $tax_details['productid'] = $tax['pdoid'];
 				$tax_details['taxid'] = $tax['cbtaxid'];
 				$tname = html_entity_decode($tax['taxname'], ENT_QUOTES);
 				$tax_details['taxname'] = $tname;
 				$tax_details['taxlabel'] = $tname;
 				$tax_details['percentage'] = $tax['taxp'];
 				$tax_details['retention'] = $tax['retention'];
-				$tax_details['deleted'] = (empty($tax['deleted']) || $tax['deleted']=='1') ? '1' : '0';
+				$tax_details['deleted'] = (is_null($tax['deleted']) || $tax['deleted']=='1') ? '1' : '0';
 				$taxes[$i] = $tax_details;
 				$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['cbtaxid'].'">'.$tname.'</a> '.$tax['taxp'];
 				$taxvalidationinfo[] = "<b>getAllTaxes found: $taxfound</b>";
