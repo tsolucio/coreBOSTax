@@ -294,8 +294,7 @@ class coreBOSTax extends CRMEntity {
 			$tax_details['default'] = $tax['tdefault'];
 			$tax_details['qcreate'] = $tax['qcreate'];
 			$taxes[$i] = $tax_details;
-			$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['taxid'].'">';
-			$taxfound.= $tname.'</a> '.$tax['taxpercentage'];
+			$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['taxid'].'">'.$tname.'</a> '.$tax['taxpercentage'];
 			$taxvalidationinfo[] = "<b>Tax found: $taxfound</b>";
 			$i++;
 		}
@@ -306,7 +305,7 @@ class coreBOSTax extends CRMEntity {
 	 *	@param string tax name (VAT or Sales or Service)
 	 *	@param int product/service id for which we want the tax percentage
 	 *	@param int ignored
-	 *	@return int taxpercentage corresponding to the Tax type from vtiger_inventorytaxinfo vtiger_table
+	 *	@return int taxpercentage corresponding to the Tax type from vtiger_inventorytaxinfo table
 	 */
 	public static function getProductTaxPercentage($taxname, $pdosrvid, $default = '') {
 		$taxes = self::getTaxDetailsForProduct($pdosrvid, 0, 'available');
@@ -325,7 +324,7 @@ class coreBOSTax extends CRMEntity {
 	 *		if available then the taxes which are available now will be returned otherwise all taxes will be returned
 	 *	@param string sh or empty, if sh passed then the shipping and handling related taxes will be returned
 	 *	@param string edit or empty, if mode is edit, then it will return taxes including disabled.
-	 *	@param string crmid or empty, getting crmid to get tax values..
+	 *	@param string crmid or empty, getting crmid to get tax values.
 	 *	@return array all the tax types
 	 */
 	public static function getAllTaxes($available = 'all', $sh = '', $mode = '', $crmid = '') {
@@ -353,8 +352,7 @@ class coreBOSTax extends CRMEntity {
 				$tax_details['retention'] = $tax['retention'];
 				$tax_details['deleted'] = (empty($tax['deleted']) || $tax['deleted']=='1') ? '1' : '0';
 				$taxes[$i] = $tax_details;
-				$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['cbtaxid'].'">';
-				$taxfound.= $tname.'</a> '.$tax['taxp'];
+				$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['cbtaxid'].'">'.$tname.'</a> '.$tax['taxp'];
 				$taxvalidationinfo[] = "<b>getAllTaxes found: $taxfound</b>";
 				$i++;
 			}
@@ -485,7 +483,7 @@ class coreBOSTax extends CRMEntity {
 	}
 
 	public static function getParentACV($crmid, $b2b = '1') {
-		global $adb, $log;
+		global $adb;
 		$secrm = getSalesEntityType($crmid);
 		switch ($secrm) {
 			case 'Quotes':
@@ -515,10 +513,10 @@ class coreBOSTax extends CRMEntity {
 			case 'Products':
 			case 'Services':
 				return 0;
-			break;
+				break;
 			default:
 				return $crmid;
-			break;
+				break;
 		}
 		$relid = $adb->query_result($rspot, 0, 0);
 		return $relid;
