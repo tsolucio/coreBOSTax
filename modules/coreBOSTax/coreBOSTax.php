@@ -199,21 +199,18 @@ class coreBOSTax extends CRMEntity {
 		if (!empty($pdosrvid)) {
 			$sepdosrvid = getSalesEntityType($pdosrvid);
 			$psttype = 0;
-			switch ($sepdosrvid) {
-				case 'Products':
-					$ttrs = $adb->pquery('select taxtypeid from vtiger_products where productid=?', array($pdosrvid));
-					if ($ttrs) {
-						$psttype = $adb->query_result($ttrs, 0, 0);
-					}
-					$taxvalidationinfo[] = 'Related Products found';
-					break;
-				case 'Services':
-					$ttrs = $adb->pquery('select taxtypeid from vtiger_service where serviceid=?', array($pdosrvid));
-					if ($ttrs) {
-						$psttype = $adb->query_result($ttrs, 0, 0);
-					}
-					$taxvalidationinfo[] = 'Related Services found';
-					break;
+			if ($sepdosrvid=='Products') {
+				$ttrs = $adb->pquery('select taxtypeid from vtiger_products where productid=?', array($pdosrvid));
+				if ($ttrs) {
+					$psttype = $adb->query_result($ttrs, 0, 0);
+				}
+				$taxvalidationinfo[] = 'Related Products found';
+			} else { // Services
+				$ttrs = $adb->pquery('select taxtypeid from vtiger_service where serviceid=?', array($pdosrvid));
+				if ($ttrs) {
+					$psttype = $adb->query_result($ttrs, 0, 0);
+				}
+				$taxvalidationinfo[] = 'Related Services found';
 			}
 			if (empty($psttype)) {
 				$taxvalidationinfo[] = 'Product/Service tax type not found.';
@@ -244,11 +241,14 @@ class coreBOSTax extends CRMEntity {
 				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype = '$psttype')) ";
 			}
 		}
+		$activeTaxCondition = " and deleted=0 and corebostaxactive='1' ";
+		$shipCondition = " and shipping='".($shipping ? '1' : '0')."' ";
+		$lookForTax = 'looking for taxes ';
 		if ($available != 'all') {
-			$where .= " and deleted=0 and corebostaxactive='1' ";
+			$where .= $activeTaxCondition;
 		}
-		$where .= " and shipping='".($shipping ? '1' : '0')."' ";
-		$taxvalidationinfo[] = 'looking for taxes '.$where;
+		$where .= $shipCondition;
+		$taxvalidationinfo[] = $lookForTax.$where;
 		$taxrs = $adb->query($sql.$where);
 		if ($adb->num_rows($taxrs)==0) {
 			$taxvalidationinfo[] = 'no taxes found > we insist';
@@ -256,28 +256,27 @@ class coreBOSTax extends CRMEntity {
 				$taxvalidationinfo[] = 'taxes of ACV(TxTy) and empty(PdoSrv(TxTy))';
 				$where = "where ((acvtaxtype = '$acvttype') and (pdotaxtype is null or pdotaxtype = 0)) ";
 				if ($available != 'all') {
-					$where .= " and deleted=0 and corebostaxactive='1' ";
+					$where .= $activeTaxCondition;
 				}
-				$where .= " and shipping='".($shipping ? '1' : '0')."' ";
-				$taxvalidationinfo[] = 'looking for taxes '.$where;
+				$where .= $shipCondition;
+				$taxvalidationinfo[] = $lookForTax.$where;
 				$taxrs = $adb->query($sql.$where);
 				if ($adb->num_rows($taxrs)==0) {
 					$taxvalidationinfo[] = 'taxes of empty(ACV(TxTy)) and PdoSrv(TxTy)';
 					$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype = '$psttype')) ";
 					if ($available != 'all') {
-						$where .= " and deleted=0 and corebostaxactive='1' ";
+						$where .= $activeTaxCondition;
 					}
-					$where .= " and shipping='".($shipping ? '1' : '0')."' ";
-					$taxvalidationinfo[] = 'looking for taxes '.$where;
+					$where .= $shipCondition;
+					$taxvalidationinfo[] = $lookForTax.$where;
 					$taxrs = $adb->query($sql.$where);
 				}
 			}
 		}
 		if ($adb->num_rows($taxrs)==0 && $available=='all') {
 			$taxvalidationinfo[] = 'all non-related taxes';
-			$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype is null or pdotaxtype = 0)) ";
-			$where .= " and deleted=0 and corebostaxactive='1' and shipping='".($shipping ? '1' : '0')."' ";
-			$taxvalidationinfo[] = 'looking for taxes '.$where;
+			$where = "where ((acvtaxtype is null or acvtaxtype = 0) and (pdotaxtype is null or pdotaxtype = 0)) ".$activeTaxCondition.$shipCondition;
+			$taxvalidationinfo[] = $lookForTax.$where;
 			$taxrs = $adb->query($sql.$where);
 		}
 		$taxes = array();
@@ -345,7 +344,6 @@ class coreBOSTax extends CRMEntity {
 			$i = 0;
 			while ($tax=$adb->fetch_array($res)) {
 				$tax_details = array();
-				// $tax_details['productid'] = $tax['pdoid'];
 				$tax_details['taxid'] = $tax['cbtaxid'];
 				$tname = html_entity_decode($tax['taxname'], ENT_QUOTES);
 				$tax_details['taxname'] = $tname;
