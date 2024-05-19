@@ -220,7 +220,7 @@ class coreBOSTax extends CRMEntity {
 		} else {
 			$taxvalidationinfo[] = 'No related product/service';
 		}
-		$sql = 'select corebostaxid as taxid, taxname, taxp as taxpercentage, deleted, retention, tdefault, qcreate
+		$sql = 'select corebostaxid as taxid, taxname, taxp as taxpercentage, deleted, corebostaxactive, retention, tdefault, qcreate
 			from vtiger_corebostax
 			inner join vtiger_crmentity on crmid=corebostaxid ';
 		if (empty($acvttype)) {
@@ -289,7 +289,7 @@ class coreBOSTax extends CRMEntity {
 			$tax_details['taxname'] = $tname;
 			$tax_details['taxlabel'] = $tname;
 			$tax_details['percentage'] = $tax['taxpercentage'];
-			$tax_details['deleted'] = $tax['deleted'];
+			$tax_details['deleted'] = ($tax['deleted']==0 && $tax['corebostaxactive']=='1') ? '0' : '1';
 			$tax_details['retention'] = $tax['retention'];
 			$tax_details['default'] = $tax['tdefault'];
 			$tax_details['qcreate'] = $tax['qcreate'];
@@ -336,8 +336,11 @@ class coreBOSTax extends CRMEntity {
 				$ship = '0';
 			}
 			$res = $adb->pquery(
-				'select distinct cbtaxid,taxname,taxp,retention,deleted
-					from vtiger_corebostaxinventory left join vtiger_crmentity on crmid=cbtaxid where invid=? and shipping=?',
+				'select distinct cbtaxid,vtiger_corebostaxinventory.taxname,vtiger_corebostaxinventory.taxp,vtiger_corebostaxinventory.retention,deleted,corebostaxactive
+					from vtiger_corebostaxinventory
+					left join vtiger_crmentity on crmid=cbtaxid
+					left join vtiger_corebostax on crmid=corebostaxid
+					where invid=? and vtiger_corebostaxinventory.shipping=?',
 				array($crmid,$ship)
 			);
 			$taxes = array();
@@ -350,7 +353,7 @@ class coreBOSTax extends CRMEntity {
 				$tax_details['taxlabel'] = $tname;
 				$tax_details['percentage'] = $tax['taxp'];
 				$tax_details['retention'] = $tax['retention'];
-				$tax_details['deleted'] = (is_null($tax['deleted']) || $tax['deleted']=='1') ? '1' : '0';
+				$tax_details['deleted'] = ($tax['deleted']==0 && $tax['corebostaxactive']=='1') ? '0' : '1';
 				$taxes[$i] = $tax_details;
 				$taxfound = '<a href="index.php?module=coreBOSTax&action=DetailView&record='.$tax['cbtaxid'].'">'.$tname.'</a> '.$tax['taxp'];
 				$taxvalidationinfo[] = "<b>getAllTaxes found: $taxfound</b>";
