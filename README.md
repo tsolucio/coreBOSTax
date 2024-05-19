@@ -6,9 +6,15 @@ This module, along with the [coreBOS Tax Category module](https://github.com/tso
 
 The [Tax Type module](https://github.com/tsolucio/coreBOSTaxType) will permit us to tag products, clients and vendors with a tax classification, while this Tax module will permit us to define a tax value for each tax type using escalation rules depending on the configured values during the creation of the inventory record.
 
-It is important to note that once these modules are installed you should not use the Settings Tax Configuration anymore. Create tax records only in this module, it will take care of adjusting the necessary internal details.
-
 You can get a little more information in [this blog post](https://blog.corebos.org/blog/advancedtax).
+
+## Warnings
+
+It is important to note that once these modules are installed you should not use the **Settings Tax Configuration** anymore. Create tax records only in this module, it will take care of adjusting the necessary internal details.
+
+Do not **DELETE** tax records, mark them as inactive. This is important for correct management of historical inventory records that have applied the tax setting. In other words, if we apply a tax record to an invoice, then you delete the tax record, when you view/edit the inventory record the tax calculation will be incorrect as it needs the setting record applied. Simply mark the record as inactive with the field in this module.
+
+As a corollary of the previous comment: **NEVER** empty the recycle bin in this module.
 
 ## Updates
 
