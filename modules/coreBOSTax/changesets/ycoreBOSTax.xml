@@ -14,4 +14,11 @@
 	<classname>addTaxCalculationgetInventoryDetailsSQL</classname>
 	<systemupdate>false</systemupdate>
 </changeSet>
+<changeSet>
+	<author>joebordes</author>
+	<description>Add TaxCalculation.ExportSQL event handlers</description>
+	<filename>modules/coreBOSTax/changesets/addTaxSQLExportEvents.php</filename>
+	<classname>addTaxSQLExportEvents</classname>
+	<systemupdate>false</systemupdate>
+</changeSet>
 </updatesChangeLog>

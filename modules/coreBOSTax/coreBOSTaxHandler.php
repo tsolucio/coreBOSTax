@@ -127,6 +127,12 @@ class coreBOSTaxEvents extends VTEventHandler {
 				$taxname = vtlib_purify($parameter[1]);
 				$parameter[2] = coreBOSTax::getInventorySHTaxPercent($id, $taxname);
 				break;
+			case 'corebos.filter.TaxCalculation.isExternal':
+				$parameter = true;
+				break;
+			case 'corebos.filter.TaxCalculation.getTaxSQLColumns':
+				$parameter = coreBOSTax::getTaxSQL();
+				break;
 			case 'corebos.filter.TaxCalculation.getInventoryDetailsSQL':
 				$related_to = $parameter[0];
 				$taxtype = $parameter[1];

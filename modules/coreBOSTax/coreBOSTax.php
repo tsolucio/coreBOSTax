@@ -485,6 +485,24 @@ class coreBOSTax extends CRMEntity {
 		return $taxpercentage;
 	}
 
+	public static function getTaxSQL() {
+		global $adb;
+		$txsql = '';
+		$txsel = '(SELECT COALESCE(taxp, 0) FROM vtiger_corebostaxinventory
+			WHERE vtiger_corebostaxinventory.lineitemid=vtiger_inventoryproductrel.lineitem_id and taxname=?)';
+		$taxes = coreBOSTax::getAllTaxes();
+		$iter = 1;
+		foreach ($taxes as $tax) {
+			$txsql .= $adb->convert2Sql($txsel, [$tax['taxname']])." AS id_tax{$iter}_perc,";
+			$iter++;
+		}
+		for ($fill=3; $fill>=$iter; $iter++) {
+			$txsql .= "0 AS id_tax{$iter}_perc,";
+			$iter++;
+		}
+		return rtrim($txsql, ',');
+	}
+
 	public static function getParentACV($crmid, $b2b = '1') {
 		global $adb;
 		$secrm = getSalesEntityType($crmid);
